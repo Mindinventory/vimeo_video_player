@@ -32,7 +32,7 @@ This plugin allow us to play video from vimeo and it's supports multiple platfor
 * easy way to play vimeo video in video player.
 
 # Preview
-![vimeo_video_player](https://gitlab.com/Mindinventory/vimeo_video_player/blob/master/assets/vimeo.gif)
+![vimeo_video_player](https://github.com/Mindinventory/vimeo_video_player/blob/master/assets/vimeo.gif)
 
 ## Basic Usage
 
