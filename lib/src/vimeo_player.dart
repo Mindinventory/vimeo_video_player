@@ -32,7 +32,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   /// used to check that the url format is valid vimeo video format
   bool get _isVimeoVideo {
     var regExp = RegExp(
-      r'^https:\/\/vimeo\.com\/([0-9]+).*$',
+      r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$",
       caseSensitive: false,
       multiLine: false,
     );
@@ -117,18 +117,19 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     String url, {
     bool trimWhitespaces = true,
   }) async {
-    if (!url.contains("http")) return null;
     if (trimWhitespaces) url = url.trim();
 
-    // here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
-    // https://vimeo.com/70591644 => 70591644
+    /// here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
+    /// https://vimeo.com/70591644 => 70591644
+    /// www.vimeo.com/70591644 => 70591644
+    /// vimeo.com/70591644 => 70591644
     var vimeoVideoId = '';
     for (var exp in [
-      RegExp(r"^https:\/\/vimeo\.com\/([0-9]+).*$"),
+      RegExp(r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$"),
     ]) {
       RegExpMatch? match = exp.firstMatch(url);
       if (match != null && match.groupCount >= 1) {
-        vimeoVideoId = match.group(1) ?? '';
+        vimeoVideoId = match.group(4) ?? '';
       }
     }
 
@@ -141,14 +142,17 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     required String vimeoVideoId,
   }) async {
     try {
-      Response responseData = await Dio()
-          .get('https://player.vimeo.com/video/$vimeoVideoId/config');
+      Response responseData = await Dio().get(
+        'https://player.vimeo.com/video/$vimeoVideoId/config',
+      );
       dynamic data = responseData.data;
       var vimeoVideo = VimeoVideoConfig.fromJson(data);
       return vimeoVideo;
     } on DioError catch (e) {
+      debugPrint('Dio Error : ${e.error}');
       return null;
     } on Exception catch (e) {
+      debugPrint('Error : ${e.toString()}');
       return null;
     }
   }

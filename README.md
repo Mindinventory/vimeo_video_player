@@ -8,25 +8,13 @@
 <a href="https://developer.apple.com/ios/" style="pointer-events: stroke;" target="_blank">
 <img src="https://img.shields.io/badge/platform-iOS-yellow">
 </a>
-<a href="" style="pointer-events: stroke;" target="_blank">
-<img src="https://img.shields.io/badge/platform-Web-yellow">
-</a>
-<a href="" style="pointer-events: stroke;" target="_blank">
-<img src="https://img.shields.io/badge/platform-Mac-yellow">
-</a>
-<a href="" style="pointer-events: stroke;" target="_blank">
-<img src="https://img.shields.io/badge/platform-Linux-yellow">
-</a>
-<a href="" style="pointer-events: stroke;" target="_blank">
-<img src="https://img.shields.io/badge/platform-Windows-yellow">
-</a>
 <a href=""><img src="https://app.codacy.com/project/badge/Grade/dc683c9cc61b499fa7cdbf54e4d9ff35"/></a>
 <a href="https://github.com/Mindinventory/vimeo_video_player/blob/master/LICENSE" style="pointer-events: stroke;" target="_blank">
-<img src="https://img.shields.io/github/license/Mindinventory/progressive_time_picker"></a>
+<img src="https://img.shields.io/github/license/Mindinventory/vimeo_video_player"></a>
 
 
 A Video Player For Vimeo Videos in Flutter.
-This plugin allow us to play video from vimeo and it's supports multiple platforms.
+This plugin allow us to play video from vimeo and it's supports Android and iOS platforms.
 
 ## Key Features
 * easy way to play vimeo video in video player.
@@ -79,7 +67,7 @@ It would be great for us if the reporter can share the below things to understan
 
 LICENSE!
 ------------
-**progressive_time_picker** is [MIT-licensed.](https://github.com/Mindinventory/vimeo_video_player/blob/master/LICENSE)
+**vimeo_video_player** is [MIT-licensed.](https://github.com/Mindinventory/vimeo_video_player/blob/master/LICENSE)
 
 Let us know!
 ------------
