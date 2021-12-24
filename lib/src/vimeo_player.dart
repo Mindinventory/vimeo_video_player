@@ -120,10 +120,13 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   }) async {
     if (trimWhitespaces) url = url.trim();
 
-    /// here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
-    /// https://vimeo.com/70591644 => 70591644
-    /// www.vimeo.com/70591644 => 70591644
-    /// vimeo.com/70591644 => 70591644
+    /**
+    here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
+    supports this types of urls
+    https://vimeo.com/70591644 => 70591644
+    www.vimeo.com/70591644 => 70591644
+    vimeo.com/70591644 => 70591644
+    */
     var vimeoVideoId = '';
     var videoIdGroup = 4;
     for (var exp in [
@@ -147,8 +150,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       Response responseData = await Dio().get(
         'https://player.vimeo.com/video/$vimeoVideoId/config',
       );
-      dynamic data = responseData.data;
-      var vimeoVideo = VimeoVideoConfig.fromJson(data);
+      var vimeoVideo = VimeoVideoConfig.fromJson(responseData.data);
       return vimeoVideo;
     } on DioError catch (e) {
       log('Dio Error : ', name: e.error.toString());
