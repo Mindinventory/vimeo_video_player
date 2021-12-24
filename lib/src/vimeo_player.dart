@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
@@ -124,12 +125,13 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     /// www.vimeo.com/70591644 => 70591644
     /// vimeo.com/70591644 => 70591644
     var vimeoVideoId = '';
+    var videoIdGroup = 4;
     for (var exp in [
       RegExp(r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$"),
     ]) {
       RegExpMatch? match = exp.firstMatch(url);
       if (match != null && match.groupCount >= 1) {
-        vimeoVideoId = match.group(4) ?? '';
+        vimeoVideoId = match.group(videoIdGroup) ?? '';
       }
     }
 
@@ -149,10 +151,10 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       var vimeoVideo = VimeoVideoConfig.fromJson(data);
       return vimeoVideo;
     } on DioError catch (e) {
-      debugPrint('Dio Error : ${e.error}');
+      log('Dio Error : ', name: e.error.toString());
       return null;
     } on Exception catch (e) {
-      debugPrint('Error : ${e.toString()}');
+      log('Error : ', name: e.toString());
       return null;
     }
   }
