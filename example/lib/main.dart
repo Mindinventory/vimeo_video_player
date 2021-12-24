@@ -23,13 +23,16 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  /// also support url like this: 'www.vimeo.com/70591644', 'vimeo.com/70591644'
+  final String _vimeoVideoUrl = 'https://vimeo.com/70591644';
+
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
         child: VimeoVideoPlayer(
-          url: 'https://vimeo.com/70591644',
+          url: _vimeoVideoUrl,
         ),
       ),
     );

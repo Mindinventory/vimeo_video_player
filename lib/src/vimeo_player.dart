@@ -1,3 +1,4 @@
+import 'dart:developer';
 import 'package:dio/dio.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
@@ -32,7 +33,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   /// used to check that the url format is valid vimeo video format
   bool get _isVimeoVideo {
     var regExp = RegExp(
-      r'^https:\/\/vimeo\.com\/([0-9]+).*$',
+      r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$",
       caseSensitive: false,
       multiLine: false,
     );
@@ -117,18 +118,23 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     String url, {
     bool trimWhitespaces = true,
   }) async {
-    if (!url.contains("http")) return null;
     if (trimWhitespaces) url = url.trim();
 
-    // here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
-    // https://vimeo.com/70591644 => 70591644
+    /**
+    here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
+    supports this types of urls
+    https://vimeo.com/70591644 => 70591644
+    www.vimeo.com/70591644 => 70591644
+    vimeo.com/70591644 => 70591644
+    */
     var vimeoVideoId = '';
+    var videoIdGroup = 4;
     for (var exp in [
-      RegExp(r"^https:\/\/vimeo\.com\/([0-9]+).*$"),
+      RegExp(r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$"),
     ]) {
       RegExpMatch? match = exp.firstMatch(url);
       if (match != null && match.groupCount >= 1) {
-        vimeoVideoId = match.group(1) ?? '';
+        vimeoVideoId = match.group(videoIdGroup) ?? '';
       }
     }
 
@@ -141,14 +147,16 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     required String vimeoVideoId,
   }) async {
     try {
-      Response responseData = await Dio()
-          .get('https://player.vimeo.com/video/$vimeoVideoId/config');
-      dynamic data = responseData.data;
-      var vimeoVideo = VimeoVideoConfig.fromJson(data);
+      Response responseData = await Dio().get(
+        'https://player.vimeo.com/video/$vimeoVideoId/config',
+      );
+      var vimeoVideo = VimeoVideoConfig.fromJson(responseData.data);
       return vimeoVideo;
     } on DioError catch (e) {
+      log('Dio Error : ', name: e.error.toString());
       return null;
     } on Exception catch (e) {
+      log('Error : ', name: e.toString());
       return null;
     }
   }
