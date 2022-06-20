@@ -67,20 +67,29 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   }
 
   void _videoPlayer() {
-    if (_isVimeoVideo) {
-      /// getting the vimeo video configuration from api and setting managers
-      _getVimeoVideoConfigFromUrl(widget.url).then((value) {
-        var vimeoMp4Video = value?.request?.files?.progressive?[0]?.url ?? '';
+    /// getting the vimeo video configuration from api and setting managers
+    _getVimeoVideoConfigFromUrl(widget.url).then((value) {
+      final progressiveList = value?.request?.files?.progressive;
 
-        _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
-        _flickManager = FlickManager(
-          videoPlayerController: _videoPlayerController,
-          autoPlay: false,
-        );
+      var vimeoMp4Video = '';
 
-        isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
-      });
-    }
+      if (progressiveList != null && progressiveList.isNotEmpty) {
+        progressiveList.map((element) {
+          if (element != null && element.url != null && element.url != '' && vimeoMp4Video == '') {
+            vimeoMp4Video = element.url ?? '';
+          }
+        }).toList();
+        vimeoMp4Video == '' ? showAlertDialog(context) : null;
+      }
+
+      _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
+      _flickManager = FlickManager(
+        videoPlayerController: _videoPlayerController,
+        autoPlay: false,
+      );
+
+      isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
+    });
   }
 
   @override
@@ -160,4 +169,33 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       return null;
     }
   }
+}
+
+
+extension _ on  _VimeoVideoPlayerState {
+
+showAlertDialog(BuildContext context) {
+
+  // set up the AlertDialog
+  AlertDialog alert = AlertDialog(
+    title: const Text("Alert"),
+    content: const Text("Some thing wrong with this url"),
+    actions: [
+      TextButton(
+        child: const Text("OK"),
+        onPressed: () {
+          Navigator.of(context).pop();
+        },
+      ),
+    ],
+  );
+
+  // show the dialog
+  showDialog(
+    context: context,
+    builder: (BuildContext context) {
+      return alert;
+    },
+  );
+}
 }
