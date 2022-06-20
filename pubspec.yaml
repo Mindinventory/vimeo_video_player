@@ -11,7 +11,7 @@ dependencies:
   flutter:
     sdk: flutter
   dio: ^4.0.4
-  flick_video_player: ^0.3.1
+  flick_video_player: ^0.4.0-dev.4
   video_player: ^2.4.5
 
 dev_dependencies:
