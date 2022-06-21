@@ -152,13 +152,11 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   }) async {
     if (trimWhitespaces) url = url.trim();
 
-    /**
-    here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
-    supports this types of urls
-    https://vimeo.com/70591644 => 70591644
-    www.vimeo.com/70591644 => 70591644
-    vimeo.com/70591644 => 70591644
-    */
+    /// here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
+    /// supports this types of urls
+    /// https://vimeo.com/70591644 => 70591644
+    /// www.vimeo.com/70591644 => 70591644
+    /// vimeo.com/70591644 => 70591644
     var vimeoVideoId = '';
     var videoIdGroup = 4;
     for (var exp in [
