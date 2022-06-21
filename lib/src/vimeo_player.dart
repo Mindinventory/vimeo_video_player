@@ -7,14 +7,31 @@ import 'package:video_player/video_player.dart';
 
 import 'model/vimeo_video_config.dart';
 
+class VimeoPlayerModel {
+  /// vimeo video url
+  final String url;
+
+  /// hide/show device status-bar
+  final List<SystemUiOverlay> systemUiOverlay;
+
+  /// deviceOrientation of video view
+  DeviceOrientation deviceOrientation;
+
+  VimeoPlayerModel({
+    Key? key,
+    required this.url,
+    this.systemUiOverlay = const [SystemUiOverlay.top, SystemUiOverlay.bottom],
+    this.deviceOrientation = DeviceOrientation.portraitUp,
+  });
+}
+
 class VimeoVideoPlayer extends StatefulWidget {
   const VimeoVideoPlayer({
     Key? key,
-    required this.url,
+    required this.vimeoPlayerModel,
   }) : super(key: key);
 
-  /// vimeo video url
-  final String url;
+  final VimeoPlayerModel vimeoPlayerModel;
 
   @override
   _VimeoVideoPlayerState createState() => _VimeoVideoPlayerState();
@@ -37,7 +54,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       caseSensitive: false,
       multiLine: false,
     );
-    final match = regExp.firstMatch(widget.url);
+    final match = regExp.firstMatch(widget.vimeoPlayerModel.url);
     if (match != null && match.groupCount >= 1) return true;
     return false;
   }
@@ -63,19 +80,24 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     /// disposing the controllers
     _flickManager.dispose();
     _videoPlayerController.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values); // to re-show bars
     super.dispose();
   }
 
   void _videoPlayer() {
     /// getting the vimeo video configuration from api and setting managers
-    _getVimeoVideoConfigFromUrl(widget.url).then((value) {
+    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url).then((value) {
       final progressiveList = value?.request?.files?.progressive;
 
       var vimeoMp4Video = '';
 
       if (progressiveList != null && progressiveList.isNotEmpty) {
         progressiveList.map((element) {
-          if (element != null && element.url != null && element.url != '' && vimeoMp4Video == '') {
+          if (element != null &&
+              element.url != null &&
+              element.url != '' &&
+              vimeoMp4Video == '') {
             vimeoMp4Video = element.url ?? '';
           }
         }).toList();
@@ -101,8 +123,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
             ? FlickVideoPlayer(
                 key: ObjectKey(_flickManager),
                 flickManager: _flickManager,
-                preferredDeviceOrientation: const [
-                  DeviceOrientation.portraitUp,
+                systemUIOverlay: widget.vimeoPlayerModel.systemUiOverlay,
+                preferredDeviceOrientation: [
+                  widget.vimeoPlayerModel.deviceOrientation,
                 ],
                 flickVideoWithControls: const FlickVideoWithControls(
                   videoFit: BoxFit.fitWidth,
@@ -171,31 +194,28 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   }
 }
 
+extension _ on _VimeoVideoPlayerState {
+  showAlertDialog(BuildContext context) {
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Alert"),
+      content: const Text("Some thing wrong with this url"),
+      actions: [
+        TextButton(
+          child: const Text("OK"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
 
-extension _ on  _VimeoVideoPlayerState {
-
-showAlertDialog(BuildContext context) {
-
-  // set up the AlertDialog
-  AlertDialog alert = AlertDialog(
-    title: const Text("Alert"),
-    content: const Text("Some thing wrong with this url"),
-    actions: [
-      TextButton(
-        child: const Text("OK"),
-        onPressed: () {
-          Navigator.of(context).pop();
-        },
-      ),
-    ],
-  );
-
-  // show the dialog
-  showDialog(
-    context: context,
-    builder: (BuildContext context) {
-      return alert;
-    },
-  );
-}
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
 }

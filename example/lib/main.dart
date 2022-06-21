@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:vimeo_video_player/vimeo_video_player.dart';
 
 void main() => runApp(const MyApp());
@@ -32,7 +33,14 @@ class _MyHomePageState extends State<MyHomePage> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: VimeoVideoPlayer(
-          url: _vimeoVideoUrl,
+          vimeoPlayerModel: VimeoPlayerModel(
+            url: _vimeoVideoUrl,
+            deviceOrientation: DeviceOrientation.portraitUp,
+            systemUiOverlay: const [
+              SystemUiOverlay.top,
+              SystemUiOverlay.bottom,
+            ],
+          ),
         ),
       ),
     );

@@ -33,7 +33,14 @@ import 'package:vimeo_video_player/vimeo_video_player.dart';
 And add it in its most basic form like it:
 ```
 VimeoVideoPlayer(
-  url: 'https://vimeo.com/70591644',
+  vimeoPlayerModel: VimeoPlayerModel(
+    url: 'https://vimeo.com/70591644',
+    deviceOrientation: DeviceOrientation.portraitUp,
+    systemUiOverlay: const [
+      SystemUiOverlay.top,
+      SystemUiOverlay.bottom,
+      ],
+   ),
 );
 ```
 
@@ -42,6 +49,13 @@ VimeoVideoPlayer(
 | Parameter |  Description  |
 | ------------ |  ------------ |
 | String url | the string url of valid vimeo video|
+
+### Optional parameters of VimeoVideoPlayer
+------------
+| Parameter |  Description  |
+| ------------ |  ------------ |
+| DeviceOrientation deviceOrientation | deviceOrientation to set orientation of vimeo video view|
+| List<SystemUiOverlay> systemUiOverlay | top-bottom overlay to hide/show status bars|
 
 
 ### Dependencies
