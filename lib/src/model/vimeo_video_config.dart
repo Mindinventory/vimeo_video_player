@@ -511,7 +511,7 @@ class VimeoStream {
     this.fps,
   });
 
-  int? profile;
+  String? profile;
   String? quality;
   dynamic id;
   int? fps;
