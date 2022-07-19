@@ -101,7 +101,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
             vimeoMp4Video = element.url ?? '';
           }
         }).toList();
-        vimeoMp4Video == '' ? showAlertDialog(context) : null;
+        if (vimeoMp4Video.isEmpty || vimeoMp4Video == '') {
+          showAlertDialog(context);
+        }
       }
 
       _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);

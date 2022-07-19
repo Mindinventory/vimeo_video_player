@@ -1,3 +1,8 @@
+[0.0.4] - 2022-07-19
+
+* Updated vimeo video config.
+* Updated package details.
+
 [0.0.3] - 2022-06-21
 
 * Updated package with more utilities.

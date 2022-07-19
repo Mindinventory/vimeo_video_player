@@ -60,9 +60,9 @@ VimeoVideoPlayer(
 
 ### Dependencies
 
-* dio: ^4.0.4
-* flick_video_player: ^0.3.1
-* video_player: ^2.2.7
+* [dio](https://pub.dev/packages/dio): 4.0.6
+* [flick_video_player](https://pub.dev/packages/flick_video_player): 0.5.0
+* [video_player](https://pub.dev/packages/video_player): 2.4.5
 
 ### Guideline for contributors
 ------------
