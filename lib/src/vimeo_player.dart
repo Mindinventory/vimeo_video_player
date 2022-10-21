@@ -104,8 +104,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   void _setVideoInitialPosition(VideoPlayerController controller) {
     final Duration? startAt = widget.vimeoPlayerModel.startAt;
-    if(startAt != null) {
-      if(controller.value.duration > startAt) {
+    if (startAt != null) {
+      if (controller.value.duration > startAt) {
         controller.seekTo(startAt);
       } // else ignore, incorrect value
     }
@@ -115,16 +115,16 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     final onProgressCallback = widget.vimeoPlayerModel.onProgress;
     final onFinishCallback = widget.vimeoPlayerModel.onFinished;
 
-    if(onProgressCallback != null || onFinishCallback != null) {
+    if (onProgressCallback != null || onFinishCallback != null) {
       _videoPlayerController.addListener(() {
         final VideoPlayerValue videoData = _videoPlayerController.value;
         if (videoData.isInitialized) {
-          if(videoData.isPlaying) {
-            if(onProgressCallback != null) {
+          if (videoData.isPlaying) {
+            if (onProgressCallback != null) {
               onProgressCallback.call(videoData.position);
             }
-          } else if(videoData.duration == videoData.position) {
-            if(onFinishCallback != null) {
+          } else if (videoData.duration == videoData.position) {
+            if (onFinishCallback != null) {
               onFinishCallback.call();
             }
           }
@@ -135,7 +135,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   void _videoPlayer() {
     /// getting the vimeo video configuration from api and setting managers
-    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url).then((value) async {
+    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url)
+        .then((value) async {
       final progressiveList = value?.request?.files?.progressive;
 
       var vimeoMp4Video = '';
