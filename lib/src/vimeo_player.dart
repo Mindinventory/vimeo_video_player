@@ -14,6 +14,20 @@ class VimeoPlayerModel {
   /// hide/show device status-bar
   final List<SystemUiOverlay> systemUiOverlay;
 
+  /// If this value is set, video will have initial position
+  /// set to given minute/second.
+  ///
+  /// Incorrect values (exceeding the video duration) will be ignored.
+  final Duration? startAt;
+
+  /// If this function is provided, it will be called periodically with
+  /// current video position (approximately every 500 ms).
+  final void Function(Duration timePoint)? onProgress;
+
+  /// If this function is provided, it will be called when video
+  /// finishes playback.
+  final VoidCallback? onFinished;
+
   /// deviceOrientation of video view
   DeviceOrientation deviceOrientation;
 
@@ -22,6 +36,9 @@ class VimeoPlayerModel {
     required this.url,
     this.systemUiOverlay = const [SystemUiOverlay.top, SystemUiOverlay.bottom],
     this.deviceOrientation = DeviceOrientation.portraitUp,
+    this.startAt,
+    this.onProgress,
+    this.onFinished,
   });
 }
 
@@ -85,9 +102,40 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     super.dispose();
   }
 
+  void _setVideoInitialPosition(VideoPlayerController controller) {
+    final Duration? startAt = widget.vimeoPlayerModel.startAt;
+    if(startAt != null) {
+      if(controller.value.duration > startAt) {
+        controller.seekTo(startAt);
+      } // else ignore, incorrect value
+    }
+  }
+
+  void _setVideoListeners(VideoPlayerController controller) {
+    final onProgressCallback = widget.vimeoPlayerModel.onProgress;
+    final onFinishCallback = widget.vimeoPlayerModel.onFinished;
+
+    if(onProgressCallback != null || onFinishCallback != null) {
+      _videoPlayerController.addListener(() {
+        final VideoPlayerValue videoData = _videoPlayerController.value;
+        if (videoData.isInitialized) {
+          if(videoData.isPlaying) {
+            if(onProgressCallback != null) {
+              onProgressCallback.call(videoData.position);
+            }
+          } else if(videoData.duration == videoData.position) {
+            if(onFinishCallback != null) {
+              onFinishCallback.call();
+            }
+          }
+        }
+      });
+    }
+  }
+
   void _videoPlayer() {
     /// getting the vimeo video configuration from api and setting managers
-    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url).then((value) {
+    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url).then((value) async {
       final progressiveList = value?.request?.files?.progressive;
 
       var vimeoMp4Video = '';
@@ -107,6 +155,10 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       }
 
       _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
+      await _videoPlayerController.initialize();
+      _setVideoInitialPosition(_videoPlayerController);
+      _setVideoListeners(_videoPlayerController);
+
       _flickManager = FlickManager(
         videoPlayerController: _videoPlayerController,
         autoPlay: false,
