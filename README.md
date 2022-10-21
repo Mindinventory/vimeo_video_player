@@ -20,7 +20,7 @@ This plugin allow us to play video from vimeo and it's supports Android and iOS 
 * easy way to play vimeo video in video player.
 
 # Preview
-![vimeo_video_player](https://github.com/Mindinventory/vimeo_video_player/blob/master/assets/vimeo.gif)
+![vimeo_video_player](https://github.com/mi-ghanshyam/vimeo_video_player/blob/master/assets/vimeo.gif)
 
 ## Basic Usage
 
@@ -33,22 +33,38 @@ import 'package:vimeo_video_player/vimeo_video_player.dart';
 And add it in its most basic form like it:
 ```
 VimeoVideoPlayer(
-  url: 'https://vimeo.com/70591644',
+  vimeoPlayerModel: VimeoPlayerModel(
+    url: 'https://vimeo.com/70591644',
+    deviceOrientation: DeviceOrientation.portraitUp,
+    systemUiOverlay: const [
+      SystemUiOverlay.top,
+      SystemUiOverlay.bottom,
+      ],
+   ),
 );
 ```
 
 ### Required parameters of VimeoVideoPlayer
 ------------
-| Parameter |  Description  |
-| ------------ |  ------------ |
-| String url | the string url of valid vimeo video|
+| Parameter  | Description                         |
+|------------|-------------------------------------|
+| String url | the string url of valid vimeo video |
 
+### Optional parameters of VimeoVideoPlayer
+------------
+| Parameter                                | Description                                                                             |
+|------------------------------------------|-----------------------------------------------------------------------------------------|
+| DeviceOrientation deviceOrientation      | deviceOrientation to set orientation of vimeo video view                                |
+| List<SystemUiOverlay> systemUiOverlay    | top-bottom overlay to hide/show status bars                                             |
+| Duration? startAt                        | video will have initial position set to given minute/second                             |
+| Function(Duration timePoint)? onProgress | it will be called periodically with current video position (approximately every 500 ms) |
+| VoidCallback? onFinished                 | it will be called when video finishes playback                                          |
 
 ### Dependencies
 
-* dio: ^4.0.4
-* flick_video_player: ^0.3.1
-* video_player: ^2.2.7
+* [dio](https://pub.dev/packages/dio): ^4.0.6
+* [flick_video_player](https://pub.dev/packages/flick_video_player): ^0.5.0
+* [video_player](https://pub.dev/packages/video_player): ^2.4.5
 
 ### Guideline for contributors
 ------------
