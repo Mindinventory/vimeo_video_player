@@ -7,14 +7,48 @@ import 'package:video_player/video_player.dart';
 
 import 'model/vimeo_video_config.dart';
 
+class VimeoPlayerModel {
+  /// vimeo video url
+  final String url;
+
+  /// hide/show device status-bar
+  final List<SystemUiOverlay> systemUiOverlay;
+
+  /// If this value is set, video will have initial position
+  /// set to given minute/second.
+  ///
+  /// Incorrect values (exceeding the video duration) will be ignored.
+  final Duration? startAt;
+
+  /// If this function is provided, it will be called periodically with
+  /// current video position (approximately every 500 ms).
+  final void Function(Duration timePoint)? onProgress;
+
+  /// If this function is provided, it will be called when video
+  /// finishes playback.
+  final VoidCallback? onFinished;
+
+  /// deviceOrientation of video view
+  DeviceOrientation deviceOrientation;
+
+  VimeoPlayerModel({
+    Key? key,
+    required this.url,
+    this.systemUiOverlay = const [SystemUiOverlay.top, SystemUiOverlay.bottom],
+    this.deviceOrientation = DeviceOrientation.portraitUp,
+    this.startAt,
+    this.onProgress,
+    this.onFinished,
+  });
+}
+
 class VimeoVideoPlayer extends StatefulWidget {
   const VimeoVideoPlayer({
     Key? key,
-    required this.url,
+    required this.vimeoPlayerModel,
   }) : super(key: key);
 
-  /// vimeo video url
-  final String url;
+  final VimeoPlayerModel vimeoPlayerModel;
 
   @override
   _VimeoVideoPlayerState createState() => _VimeoVideoPlayerState();
@@ -37,7 +71,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       caseSensitive: false,
       multiLine: false,
     );
-    final match = regExp.firstMatch(widget.url);
+    final match = regExp.firstMatch(widget.vimeoPlayerModel.url);
     if (match != null && match.groupCount >= 1) return true;
     return false;
   }
@@ -63,24 +97,76 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     /// disposing the controllers
     _flickManager.dispose();
     _videoPlayerController.dispose();
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
+        overlays: SystemUiOverlay.values); // to re-show bars
     super.dispose();
   }
 
-  void _videoPlayer() {
-    if (_isVimeoVideo) {
-      /// getting the vimeo video configuration from api and setting managers
-      _getVimeoVideoConfigFromUrl(widget.url).then((value) {
-        var vimeoMp4Video = value?.request?.files?.progressive?[0]?.url ?? '';
+  void _setVideoInitialPosition(VideoPlayerController controller) {
+    final Duration? startAt = widget.vimeoPlayerModel.startAt;
+    if (startAt != null) {
+      if (controller.value.duration > startAt) {
+        controller.seekTo(startAt);
+      } // else ignore, incorrect value
+    }
+  }
 
-        _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
-        _flickManager = FlickManager(
-          videoPlayerController: _videoPlayerController,
-          autoPlay: false,
-        );
+  void _setVideoListeners(VideoPlayerController controller) {
+    final onProgressCallback = widget.vimeoPlayerModel.onProgress;
+    final onFinishCallback = widget.vimeoPlayerModel.onFinished;
 
-        isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
+    if (onProgressCallback != null || onFinishCallback != null) {
+      _videoPlayerController.addListener(() {
+        final VideoPlayerValue videoData = _videoPlayerController.value;
+        if (videoData.isInitialized) {
+          if (videoData.isPlaying) {
+            if (onProgressCallback != null) {
+              onProgressCallback.call(videoData.position);
+            }
+          } else if (videoData.duration == videoData.position) {
+            if (onFinishCallback != null) {
+              onFinishCallback.call();
+            }
+          }
+        }
       });
     }
+  }
+
+  void _videoPlayer() {
+    /// getting the vimeo video configuration from api and setting managers
+    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url)
+        .then((value) async {
+      final progressiveList = value?.request?.files?.progressive;
+
+      var vimeoMp4Video = '';
+
+      if (progressiveList != null && progressiveList.isNotEmpty) {
+        progressiveList.map((element) {
+          if (element != null &&
+              element.url != null &&
+              element.url != '' &&
+              vimeoMp4Video == '') {
+            vimeoMp4Video = element.url ?? '';
+          }
+        }).toList();
+        if (vimeoMp4Video.isEmpty || vimeoMp4Video == '') {
+          showAlertDialog(context);
+        }
+      }
+
+      _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
+      await _videoPlayerController.initialize();
+      _setVideoInitialPosition(_videoPlayerController);
+      _setVideoListeners(_videoPlayerController);
+
+      _flickManager = FlickManager(
+        videoPlayerController: _videoPlayerController,
+        autoPlay: false,
+      );
+
+      isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
+    });
   }
 
   @override
@@ -92,8 +178,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
             ? FlickVideoPlayer(
                 key: ObjectKey(_flickManager),
                 flickManager: _flickManager,
-                preferredDeviceOrientation: const [
-                  DeviceOrientation.portraitUp,
+                systemUIOverlay: widget.vimeoPlayerModel.systemUiOverlay,
+                preferredDeviceOrientation: [
+                  widget.vimeoPlayerModel.deviceOrientation,
                 ],
                 flickVideoWithControls: const FlickVideoWithControls(
                   videoFit: BoxFit.fitWidth,
@@ -120,13 +207,11 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   }) async {
     if (trimWhitespaces) url = url.trim();
 
-    /**
-    here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
-    supports this types of urls
-    https://vimeo.com/70591644 => 70591644
-    www.vimeo.com/70591644 => 70591644
-    vimeo.com/70591644 => 70591644
-    */
+    /// here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
+    /// supports this types of urls
+    /// https://vimeo.com/70591644 => 70591644
+    /// www.vimeo.com/70591644 => 70591644
+    /// vimeo.com/70591644 => 70591644
     var vimeoVideoId = '';
     var videoIdGroup = 4;
     for (var exp in [
@@ -159,5 +244,31 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       log('Error : ', name: e.toString());
       return null;
     }
+  }
+}
+
+extension _ on _VimeoVideoPlayerState {
+  showAlertDialog(BuildContext context) {
+    // set up the AlertDialog
+    AlertDialog alert = AlertDialog(
+      title: const Text("Alert"),
+      content: const Text("Some thing wrong with this url"),
+      actions: [
+        TextButton(
+          child: const Text("OK"),
+          onPressed: () {
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
+
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
   }
 }
