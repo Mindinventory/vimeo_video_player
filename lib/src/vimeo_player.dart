@@ -179,8 +179,11 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
                 key: ObjectKey(_flickManager),
                 flickManager: _flickManager,
                 systemUIOverlay: widget.vimeoPlayerModel.systemUiOverlay,
-                preferredDeviceOrientation: [
-                  widget.vimeoPlayerModel.deviceOrientation,
+                preferredDeviceOrientation: const [
+                  DeviceOrientation.landscapeLeft,
+                  DeviceOrientation.landscapeRight,
+                  DeviceOrientation.portraitUp,
+                  DeviceOrientation.portraitDown,
                 ],
                 flickVideoWithControls: const FlickVideoWithControls(
                   videoFit: BoxFit.fitWidth,

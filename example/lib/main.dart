@@ -35,7 +35,6 @@ class _MyHomePageState extends State<MyHomePage> {
         child: VimeoVideoPlayer(
           vimeoPlayerModel: VimeoPlayerModel(
             url: _vimeoVideoUrl,
-            deviceOrientation: DeviceOrientation.portraitUp,
             systemUiOverlay: const [
               SystemUiOverlay.top,
               SystemUiOverlay.bottom,
