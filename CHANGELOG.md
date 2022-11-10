@@ -1,3 +1,8 @@
+## 0.0.6
+
+* added the feature of autorotate
+* Updated package details.
+
 ## 0.0.5
 
 * added support for video starting point, playback progress and finish. (thanks to @piotrszych)
