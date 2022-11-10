@@ -35,7 +35,6 @@ And add it in its most basic form like it:
 VimeoVideoPlayer(
   vimeoPlayerModel: VimeoPlayerModel(
     url: 'https://vimeo.com/70591644',
-    deviceOrientation: DeviceOrientation.portraitUp,
     systemUiOverlay: const [
       SystemUiOverlay.top,
       SystemUiOverlay.bottom,
@@ -54,7 +53,6 @@ VimeoVideoPlayer(
 ------------
 | Parameter                                | Description                                                                             |
 |------------------------------------------|-----------------------------------------------------------------------------------------|
-| DeviceOrientation deviceOrientation      | deviceOrientation to set orientation of vimeo video view                                |
 | List<SystemUiOverlay> systemUiOverlay    | top-bottom overlay to hide/show status bars                                             |
 | Duration? startAt                        | video will have initial position set to given minute/second                             |
 | Function(Duration timePoint)? onProgress | it will be called periodically with current video position (approximately every 500 ms) |
