@@ -31,6 +31,8 @@ class VimeoPlayerModel {
   /// deviceOrientation of video view
   DeviceOrientation deviceOrientation;
 
+  final bool autoPlay;
+
   VimeoPlayerModel({
     Key? key,
     required this.url,
@@ -39,6 +41,7 @@ class VimeoPlayerModel {
     this.startAt,
     this.onProgress,
     this.onFinished,
+    this.autoPlay = false,
   });
 }
 
@@ -66,14 +69,15 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   /// used to check that the url format is valid vimeo video format
   bool get _isVimeoVideo {
-    var regExp = RegExp(
-      r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$",
-      caseSensitive: false,
-      multiLine: false,
-    );
-    final match = regExp.firstMatch(widget.vimeoPlayerModel.url);
-    if (match != null && match.groupCount >= 1) return true;
-    return false;
+    // var regExp = RegExp(
+    //   r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$",
+    //   caseSensitive: false,
+    //   multiLine: false,
+    // );
+    // final match = regExp.firstMatch(widget.vimeoPlayerModel.url);
+    // if (match != null && match.groupCount >= 1) return true;
+    // return false;
+    return true;
   }
 
   @override
@@ -97,8 +101,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     /// disposing the controllers
     _flickManager.dispose();
     _videoPlayerController.dispose();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values); // to re-show bars
+    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual, overlays: SystemUiOverlay.values); // to re-show bars
     super.dispose();
   }
 
@@ -135,18 +138,14 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   void _videoPlayer() {
     /// getting the vimeo video configuration from api and setting managers
-    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url)
-        .then((value) async {
+    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url).then((value) async {
       final progressiveList = value?.request?.files?.progressive;
 
       var vimeoMp4Video = '';
 
       if (progressiveList != null && progressiveList.isNotEmpty) {
         progressiveList.map((element) {
-          if (element != null &&
-              element.url != null &&
-              element.url != '' &&
-              vimeoMp4Video == '') {
+          if (element != null && element.url != null && element.url != '' && vimeoMp4Video == '') {
             vimeoMp4Video = element.url ?? '';
           }
         }).toList();
@@ -161,9 +160,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       _setVideoListeners(_videoPlayerController);
 
       _flickManager = FlickManager(
-        videoPlayerController: _videoPlayerController,
-        autoPlay: false,
-      );
+        videoPlayerController: VideoPlayerController.network(vimeoMp4Video),
+        autoPlay: widget.vimeoPlayerModel.autoPlay,
+      )..registerContext(context);
 
       isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
     });
