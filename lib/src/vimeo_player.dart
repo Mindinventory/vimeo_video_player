@@ -69,15 +69,14 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   /// used to check that the url format is valid vimeo video format
   bool get _isVimeoVideo {
-    // var regExp = RegExp(
-    //   r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$",
-    //   caseSensitive: false,
-    //   multiLine: false,
-    // );
-    // final match = regExp.firstMatch(widget.vimeoPlayerModel.url);
-    // if (match != null && match.groupCount >= 1) return true;
-    // return false;
-    return true;
+    var regExp = RegExp(
+      r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$",
+      caseSensitive: false,
+      multiLine: false,
+    );
+    final match = regExp.firstMatch(widget.vimeoPlayerModel.url);
+    if (match != null && match.groupCount >= 1) return true;
+    return false;
   }
 
   @override
