@@ -95,6 +95,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   @override
   void dispose() {
     /// disposing the controllers
+    _flickManager.flickControlManager?.exitFullscreen();
     _flickManager.dispose();
     _videoPlayerController.dispose();
     SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
