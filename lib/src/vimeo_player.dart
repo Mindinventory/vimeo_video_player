@@ -7,12 +7,15 @@ import 'package:video_player/video_player.dart';
 
 import 'model/vimeo_video_config.dart';
 
-class VimeoPlayerModel {
+class VimeoVideoPlayer extends StatefulWidget {
   /// vimeo video url
   final String url;
 
   /// hide/show device status-bar
   final List<SystemUiOverlay> systemUiOverlay;
+
+  /// deviceOrientation of video view
+  final List<DeviceOrientation> deviceOrientation;
 
   /// If this value is set, video will have initial position
   /// set to given minute/second.
@@ -28,30 +31,30 @@ class VimeoPlayerModel {
   /// finishes playback.
   final VoidCallback? onFinished;
 
-  /// deviceOrientation of video view
-  DeviceOrientation deviceOrientation;
+  /// to auto-play the video once initialized
+  final bool autoPlay;
 
-  VimeoPlayerModel({
-    Key? key,
+  const VimeoVideoPlayer({
     required this.url,
-    this.systemUiOverlay = const [SystemUiOverlay.top, SystemUiOverlay.bottom],
-    this.deviceOrientation = DeviceOrientation.portraitUp,
+    this.systemUiOverlay = const [
+      SystemUiOverlay.top,
+      SystemUiOverlay.bottom,
+    ],
+    this.deviceOrientation = const [
+      DeviceOrientation.landscapeLeft,
+      DeviceOrientation.landscapeRight,
+      DeviceOrientation.portraitUp,
+      DeviceOrientation.portraitDown,
+    ],
     this.startAt,
     this.onProgress,
     this.onFinished,
-  });
-}
-
-class VimeoVideoPlayer extends StatefulWidget {
-  const VimeoVideoPlayer({
+    this.autoPlay = false,
     Key? key,
-    required this.vimeoPlayerModel,
   }) : super(key: key);
 
-  final VimeoPlayerModel vimeoPlayerModel;
-
   @override
-  _VimeoVideoPlayerState createState() => _VimeoVideoPlayerState();
+  State<VimeoVideoPlayer> createState() => _VimeoVideoPlayerState();
 }
 
 class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
@@ -67,11 +70,11 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   /// used to check that the url format is valid vimeo video format
   bool get _isVimeoVideo {
     var regExp = RegExp(
-      r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$",
+      r"^((https?)://)?(www.)?vimeo\.com/(\d+).*$",
       caseSensitive: false,
       multiLine: false,
     );
-    final match = regExp.firstMatch(widget.vimeoPlayerModel.url);
+    final match = regExp.firstMatch(widget.url);
     if (match != null && match.groupCount >= 1) return true;
     return false;
   }
@@ -97,13 +100,15 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     /// disposing the controllers
     _flickManager.dispose();
     _videoPlayerController.dispose();
-    SystemChrome.setEnabledSystemUIMode(SystemUiMode.manual,
-        overlays: SystemUiOverlay.values); // to re-show bars
+    SystemChrome.setEnabledSystemUIMode(
+      SystemUiMode.manual,
+      overlays: SystemUiOverlay.values,
+    ); // to re-show bars
     super.dispose();
   }
 
   void _setVideoInitialPosition(VideoPlayerController controller) {
-    final Duration? startAt = widget.vimeoPlayerModel.startAt;
+    final Duration? startAt = widget.startAt;
     if (startAt != null) {
       if (controller.value.duration > startAt) {
         controller.seekTo(startAt);
@@ -112,8 +117,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   }
 
   void _setVideoListeners(VideoPlayerController controller) {
-    final onProgressCallback = widget.vimeoPlayerModel.onProgress;
-    final onFinishCallback = widget.vimeoPlayerModel.onFinished;
+    final onProgressCallback = widget.onProgress;
+    final onFinishCallback = widget.onFinished;
 
     if (onProgressCallback != null || onFinishCallback != null) {
       _videoPlayerController.addListener(() {
@@ -135,8 +140,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   void _videoPlayer() {
     /// getting the vimeo video configuration from api and setting managers
-    _getVimeoVideoConfigFromUrl(widget.vimeoPlayerModel.url)
-        .then((value) async {
+    _getVimeoVideoConfigFromUrl(widget.url).then((value) {
       final progressiveList = value?.request?.files?.progressive;
 
       var vimeoMp4Video = '';
@@ -156,14 +160,14 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       }
 
       _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
-      await _videoPlayerController.initialize();
+      _videoPlayerController.initialize();
       _setVideoInitialPosition(_videoPlayerController);
       _setVideoListeners(_videoPlayerController);
 
       _flickManager = FlickManager(
         videoPlayerController: _videoPlayerController,
-        autoPlay: false,
-      );
+        autoPlay: widget.autoPlay,
+      )..registerContext(context);
 
       isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
     });
@@ -178,13 +182,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
             ? FlickVideoPlayer(
                 key: ObjectKey(_flickManager),
                 flickManager: _flickManager,
-                systemUIOverlay: widget.vimeoPlayerModel.systemUiOverlay,
-                preferredDeviceOrientation: const [
-                  DeviceOrientation.landscapeLeft,
-                  DeviceOrientation.landscapeRight,
-                  DeviceOrientation.portraitUp,
-                  DeviceOrientation.portraitDown,
-                ],
+                systemUIOverlay: widget.systemUiOverlay,
+                preferredDeviceOrientation: widget.deviceOrientation,
                 flickVideoWithControls: const FlickVideoWithControls(
                   videoFit: BoxFit.fitWidth,
                   controls: FlickPortraitControls(),
@@ -218,7 +217,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     var vimeoVideoId = '';
     var videoIdGroup = 4;
     for (var exp in [
-      RegExp(r"^((https?):\/\/)?(www.)?vimeo\.com\/([0-9]+).*$"),
+      RegExp(r"^((https?)://)?(www.)?vimeo\.com/(\d+).*$"),
     ]) {
       RegExpMatch? match = exp.firstMatch(url);
       if (match != null && match.groupCount >= 1) {
@@ -250,7 +249,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   }
 }
 
-extension _ on _VimeoVideoPlayerState {
+// ignore: library_private_types_in_public_api
+extension ShowAlertDialog on _VimeoVideoPlayerState {
   showAlertDialog(BuildContext context) {
     // set up the AlertDialog
     AlertDialog alert = AlertDialog(

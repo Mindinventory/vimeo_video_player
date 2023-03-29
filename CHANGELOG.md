@@ -1,3 +1,8 @@
+## 0.0.7
+
+* added support for autoplay video. (thanks to @mrossi-os)
+* Updated package details and code improvements.
+
 ## 0.0.6
 
 * added the feature of autorotate
