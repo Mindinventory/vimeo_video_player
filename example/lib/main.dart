@@ -39,6 +39,7 @@ class _MyHomePageState extends State<MyHomePage> {
               SystemUiOverlay.top,
               SystemUiOverlay.bottom,
             ],
+            autoPlay: true,
           ),
         ),
       ),
