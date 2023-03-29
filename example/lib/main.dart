@@ -33,14 +33,8 @@ class _MyHomePageState extends State<MyHomePage> {
       backgroundColor: Colors.black,
       body: SafeArea(
         child: VimeoVideoPlayer(
-          vimeoPlayerModel: VimeoPlayerModel(
-            url: _vimeoVideoUrl,
-            systemUiOverlay: const [
-              SystemUiOverlay.top,
-              SystemUiOverlay.bottom,
-            ],
-            autoPlay: true,
-          ),
+          url: _vimeoVideoUrl,
+          autoPlay: true,
         ),
       ),
     );
