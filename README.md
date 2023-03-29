@@ -27,14 +27,14 @@ This plugin allow us to play video from vimeo and it's supports Android and iOS 
 
 Import it to your project file
 
-```
+```dart
 import 'package:vimeo_video_player/vimeo_video_player.dart';
 ```
 
 And add it in its most basic form like it:
-```
+```dart
 VimeoVideoPlayer(
-    url: 'https://vimeo.com/70591644',
+  url: 'https://vimeo.com/70591644',
 );
 ```
 
