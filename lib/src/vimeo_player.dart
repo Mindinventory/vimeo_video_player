@@ -167,7 +167,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       _flickManager = FlickManager(
         videoPlayerController: _videoPlayerController,
         autoPlay: widget.autoPlay,
-      // ignore: use_build_context_synchronously
+        // ignore: use_build_context_synchronously
       )..registerContext(context);
 
       isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
