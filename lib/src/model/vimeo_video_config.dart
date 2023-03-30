@@ -59,13 +59,13 @@ class VimeoProgressive {
       );
 
   dynamic profile;
-  int? width;
-  String? mime;
-  int? fps;
-  String? url;
-  String? cdn;
-  String? quality;
+  dynamic width;
+  dynamic mime;
+  dynamic fps;
+  dynamic url;
+  dynamic cdn;
+  dynamic quality;
   dynamic id;
-  String? origin;
-  int? height;
+  dynamic origin;
+  dynamic height;
 }

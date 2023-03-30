@@ -1,3 +1,8 @@
+## 0.0.8
+
+* Updated vimeo video config and video player initialize.
+* Updated package details.
+
 ## 0.0.7
 
 * added support for autoplay video. (thanks to @mrossi-os)
