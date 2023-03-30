@@ -140,7 +140,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   void _videoPlayer() {
     /// getting the vimeo video configuration from api and setting managers
-    _getVimeoVideoConfigFromUrl(widget.url).then((value) {
+    _getVimeoVideoConfigFromUrl(widget.url).then((value) async {
       final progressiveList = value?.request?.files?.progressive;
 
       var vimeoMp4Video = '';
@@ -160,13 +160,14 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       }
 
       _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
-      _videoPlayerController.initialize();
+      await _videoPlayerController.initialize();
       _setVideoInitialPosition(_videoPlayerController);
       _setVideoListeners(_videoPlayerController);
 
       _flickManager = FlickManager(
         videoPlayerController: _videoPlayerController,
         autoPlay: widget.autoPlay,
+      // ignore: use_build_context_synchronously
       )..registerContext(context);
 
       isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
