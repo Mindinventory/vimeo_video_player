@@ -1,3 +1,7 @@
+## 0.0.9
+
+* Video player improvements and Updated package details.
+
 ## 0.0.8
 
 * Updated vimeo video config and video player initialize.

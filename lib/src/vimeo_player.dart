@@ -59,10 +59,13 @@ class VimeoVideoPlayer extends StatefulWidget {
 
 class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   /// video player controller
-  late VideoPlayerController _videoPlayerController;
+  VideoPlayerController? _videoPlayerController;
+
+  final VideoPlayerController _emptyVideoPlayerController =
+      VideoPlayerController.network('');
 
   /// flick manager to manage the flick player
-  late FlickManager _flickManager;
+  FlickManager? _flickManager;
 
   /// used to notify that video is loaded or not
   ValueNotifier<bool> isVimeoVideoLoaded = ValueNotifier(false);
@@ -91,15 +94,15 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   @override
   void deactivate() {
-    _videoPlayerController.pause();
+    _videoPlayerController?.pause();
     super.deactivate();
   }
 
   @override
   void dispose() {
     /// disposing the controllers
-    _flickManager.dispose();
-    _videoPlayerController.dispose();
+    _flickManager?.dispose();
+    _videoPlayerController?.dispose();
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
       overlays: SystemUiOverlay.values,
@@ -121,8 +124,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     final onFinishCallback = widget.onFinished;
 
     if (onProgressCallback != null || onFinishCallback != null) {
-      _videoPlayerController.addListener(() {
-        final VideoPlayerValue videoData = _videoPlayerController.value;
+      _videoPlayerController?.addListener(() {
+        final VideoPlayerValue videoData = _videoPlayerController?.value ??
+            const VideoPlayerValue(duration: Duration.zero);
         if (videoData.isInitialized) {
           if (videoData.isPlaying) {
             if (onProgressCallback != null) {
@@ -160,12 +164,13 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       }
 
       _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
-      await _videoPlayerController.initialize();
-      _setVideoInitialPosition(_videoPlayerController);
-      _setVideoListeners(_videoPlayerController);
+      await _videoPlayerController?.initialize();
+      _setVideoInitialPosition(
+          _videoPlayerController ?? _emptyVideoPlayerController);
+      _setVideoListeners(_videoPlayerController ?? _emptyVideoPlayerController);
 
       _flickManager = FlickManager(
-        videoPlayerController: _videoPlayerController,
+        videoPlayerController: VideoPlayerController.network(vimeoMp4Video),
         autoPlay: widget.autoPlay,
         // ignore: use_build_context_synchronously
       )..registerContext(context);
@@ -182,7 +187,10 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
         child: isVideo
             ? FlickVideoPlayer(
                 key: ObjectKey(_flickManager),
-                flickManager: _flickManager,
+                flickManager: _flickManager ??
+                    FlickManager(
+                      videoPlayerController: _emptyVideoPlayerController,
+                    ),
                 systemUIOverlay: widget.systemUiOverlay,
                 preferredDeviceOrientation: widget.deviceOrientation,
                 flickVideoWithControls: const FlickVideoWithControls(
