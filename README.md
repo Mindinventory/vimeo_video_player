@@ -57,9 +57,9 @@ VimeoVideoPlayer(
 
 ### Dependencies
 
-* [dio](https://pub.dev/packages/dio): ^5.1.0
+* [dio](https://pub.dev/packages/dio): ^5.1.1
 * [flick_video_player](https://pub.dev/packages/flick_video_player): ^0.5.0
-* [video_player](https://pub.dev/packages/video_player): ^2.6.0
+* [video_player](https://pub.dev/packages/video_player): ^2.6.1
 
 ### Guideline for contributors
 ------------
