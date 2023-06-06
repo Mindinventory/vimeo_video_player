@@ -1,3 +1,8 @@
+## 0.0.10
+
+* Video player improvements and Updated package details.
+* Fixed issue [#25](https://github.com/Mindinventory/vimeo_video_player/issues/25).
+
 ## 0.0.9
 
 * Video player improvements and Updated package details.

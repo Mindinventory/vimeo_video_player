@@ -82,6 +82,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     return false;
   }
 
+  /// used to check that the video is already seeked or not
+  bool _isSeekedVideo = false;
+
   @override
   void initState() {
     super.initState();
@@ -110,23 +113,30 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     super.dispose();
   }
 
-  void _setVideoInitialPosition(VideoPlayerController controller) {
+  void _setVideoInitialPosition() {
     final Duration? startAt = widget.startAt;
-    if (startAt != null) {
-      if (controller.value.duration > startAt) {
-        controller.seekTo(startAt);
-      } // else ignore, incorrect value
+
+    if (startAt != null && _videoPlayerController != null) {
+      _videoPlayerController!.addListener(() {
+        final VideoPlayerValue videoData = _videoPlayerController!.value;
+        if (videoData.isInitialized &&
+            videoData.duration > startAt &&
+            !_isSeekedVideo) {
+          _videoPlayerController!.seekTo(startAt);
+          _isSeekedVideo = true;
+        } // else ignore, incorrect value
+      });
     }
   }
 
-  void _setVideoListeners(VideoPlayerController controller) {
+  void _setVideoListeners() {
     final onProgressCallback = widget.onProgress;
     final onFinishCallback = widget.onFinished;
 
-    if (onProgressCallback != null || onFinishCallback != null) {
-      _videoPlayerController?.addListener(() {
-        final VideoPlayerValue videoData = _videoPlayerController?.value ??
-            const VideoPlayerValue(duration: Duration.zero);
+    if (_videoPlayerController != null &&
+        (onProgressCallback != null || onFinishCallback != null)) {
+      _videoPlayerController!.addListener(() {
+        final VideoPlayerValue videoData = _videoPlayerController!.value;
         if (videoData.isInitialized) {
           if (videoData.isPlaying) {
             if (onProgressCallback != null) {
@@ -164,13 +174,12 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       }
 
       _videoPlayerController = VideoPlayerController.network(vimeoMp4Video);
-      await _videoPlayerController?.initialize();
-      _setVideoInitialPosition(
-          _videoPlayerController ?? _emptyVideoPlayerController);
-      _setVideoListeners(_videoPlayerController ?? _emptyVideoPlayerController);
+      _setVideoInitialPosition();
+      _setVideoListeners();
 
       _flickManager = FlickManager(
-        videoPlayerController: VideoPlayerController.network(vimeoMp4Video),
+        videoPlayerController:
+            _videoPlayerController ?? _emptyVideoPlayerController,
         autoPlay: widget.autoPlay,
         // ignore: use_build_context_synchronously
       )..registerContext(context);
@@ -248,7 +257,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       );
       var vimeoVideo = VimeoVideoConfig.fromJson(responseData.data);
       return vimeoVideo;
-    } on DioError catch (e) {
+    } on DioException catch (e) {
       log('Dio Error : ', name: e.error.toString());
       return null;
     } on Exception catch (e) {
