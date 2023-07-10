@@ -1,4 +1,5 @@
 import 'dart:developer';
+
 import 'package:dio/dio.dart';
 import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
@@ -104,8 +105,12 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   @override
   void dispose() {
     /// disposing the controllers
+    _flickManager = null;
     _flickManager?.dispose();
+    _videoPlayerController = null;
     _videoPlayerController?.dispose();
+    _emptyVideoPlayerController.dispose();
+    isVimeoVideoLoaded.dispose();
     SystemChrome.setEnabledSystemUIMode(
       SystemUiMode.manual,
       overlays: SystemUiOverlay.values,
@@ -190,33 +195,41 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   @override
   Widget build(BuildContext context) {
-    return ValueListenableBuilder(
-      valueListenable: isVimeoVideoLoaded,
-      builder: (context, bool isVideo, child) => Container(
-        child: isVideo
-            ? FlickVideoPlayer(
-                key: ObjectKey(_flickManager),
-                flickManager: _flickManager ??
-                    FlickManager(
-                      videoPlayerController: _emptyVideoPlayerController,
-                    ),
-                systemUIOverlay: widget.systemUiOverlay,
-                preferredDeviceOrientation: widget.deviceOrientation,
-                flickVideoWithControls: const FlickVideoWithControls(
-                  videoFit: BoxFit.fitWidth,
-                  controls: FlickPortraitControls(),
+    return WillPopScope(
+      child: ValueListenableBuilder(
+        valueListenable: isVimeoVideoLoaded,
+        builder: (context, bool isVideo, child) => Container(
+          child: isVideo
+              ? FlickVideoPlayer(
+                  key: ObjectKey(_flickManager),
+                  flickManager: _flickManager ??
+                      FlickManager(
+                        videoPlayerController: _emptyVideoPlayerController,
+                      ),
+                  systemUIOverlay: widget.systemUiOverlay,
+                  preferredDeviceOrientation: widget.deviceOrientation,
+                  flickVideoWithControls: const FlickVideoWithControls(
+                    videoFit: BoxFit.fitWidth,
+                    controls: FlickPortraitControls(),
+                  ),
+                  flickVideoWithControlsFullscreen:
+                      const FlickVideoWithControls(
+                    controls: FlickLandscapeControls(),
+                  ),
+                )
+              : const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.grey,
+                    backgroundColor: Colors.white,
+                  ),
                 ),
-                flickVideoWithControlsFullscreen: const FlickVideoWithControls(
-                  controls: FlickLandscapeControls(),
-                ),
-              )
-            : const Center(
-                child: CircularProgressIndicator(
-                  color: Colors.grey,
-                  backgroundColor: Colors.white,
-                ),
-              ),
+        ),
       ),
+      onWillPop: () async {
+        // pause video before pop
+        _videoPlayerController?.pause();
+        return true;
+      },
     );
   }
 
