@@ -21,7 +21,7 @@ This plugin allow us to play video from vimeo and it's supports Android and iOS 
 * easy way to play vimeo video in video player.
 
 # Preview
-![vimeo_video_player](https://github.com/mi-ghanshyam/vimeo_video_player/blob/master/assets/vimeo.gif)
+![vimeo_video_player](https://github.com/mi-ghanshyam/vimeo_video_player/blob/master/assets/vimeo.gif?raw=true)
 
 ## Basic Usage
 
@@ -46,20 +46,21 @@ VimeoVideoPlayer(
 
 ### Optional parameters of VimeoVideoPlayer
 ------------
-| Parameter                                | Description                                                                             |
-|------------------------------------------|-----------------------------------------------------------------------------------------|
-| List<SystemUiOverlay> systemUiOverlay    | top-bottom overlay to hide/show status bars                                             |
-| DeviceOrientation deviceOrientation      | deviceOrientation of video view                                                         |
-| Duration? startAt                        | video will have initial position set to given minute/second                             |
-| Function(Duration timePoint)? onProgress | it will be called periodically with current video position (approximately every 500 ms) |
-| VoidCallback? onFinished                 | it will be called when video finishes playback                                          |
-| bool autoPlay                            | to auto-play the video once initialized                                                 |
+| Parameter                                | Description                                                                                     |
+|------------------------------------------|-------------------------------------------------------------------------------------------------|
+| List<SystemUiOverlay> systemUiOverlay    | top-bottom overlay to hide/show status bars                                                     |
+| DeviceOrientation deviceOrientation      | deviceOrientation of video view                                                                 |
+| Duration? startAt                        | video will have initial position set to given minute/second                                     |
+| Function(Duration timePoint)? onProgress | it will be called periodically with current video position (approximately every 500 ms)         |
+| VoidCallback? onFinished                 | it will be called when video finishes playback                                                  |
+| bool autoPlay                            | to auto-play the video once initialized                                                         |
+| Options? dioOptionsForVimeoVideoConfig   | Options to pass in Dio GET request, Used in vimeo video public API call to get the video config |
 
 ### Dependencies
 
-* [dio](https://pub.dev/packages/dio): ^5.2.0
-* [flick_video_player](https://pub.dev/packages/flick_video_player): ^0.5.0
-* [video_player](https://pub.dev/packages/video_player): ^2.6.1
+* [dio](https://pub.dev/packages/dio): ^5.4.0
+* [flick_video_player](https://pub.dev/packages/flick_video_player): ^0.7.0
+* [video_player](https://pub.dev/packages/video_player): ^2.8.2
 
 ### Guideline for contributors
 ------------

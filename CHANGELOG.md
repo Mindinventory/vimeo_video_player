@@ -1,7 +1,17 @@
+## 0.0.11
+
+* Updated the package environment, dependencies and the package details.
+* Fixed the issues.
+    - [#29](https://github.com/Mindinventory/vimeo_video_player/issues/29),
+    - [#31](https://github.com/Mindinventory/vimeo_video_player/issues/31),
+    - [#34](https://github.com/Mindinventory/vimeo_video_player/issues/34).
+* Merged the PR #[#30](https://github.com/Mindinventory/vimeo_video_player/pull/30) thanks
+  to [phankietit](https://github.com/phankietit).
+
 ## 0.0.10
 
 * Video player improvements and Updated package details.
-* Fixed issue [#25](https://github.com/Mindinventory/vimeo_video_player/issues/25).
+* Fixed the issue [#25](https://github.com/Mindinventory/vimeo_video_player/issues/25).
 
 ## 0.0.9
 
@@ -14,7 +24,7 @@
 
 ## 0.0.7
 
-* added support for autoplay video. (thanks to @mrossi-os)
+* added support for autoplay video thanks to [mrossi-os](https://github.com/mrossi-os).
 * Updated package details and code improvements.
 
 ## 0.0.6
@@ -24,7 +34,8 @@
 
 ## 0.0.5
 
-* added support for video starting point, playback progress and finish. (thanks to @piotrszych)
+* added support for video starting point, playback progress and finish thanks
+  to [piotrszych](https://github.com/piotrszych).
 * Updated package details.
 
 ## 0.0.4
