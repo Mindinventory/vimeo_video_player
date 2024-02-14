@@ -1,12 +1,16 @@
+## 0.0.12
+
+* Updated the package details.
+
 ## 0.0.11
 
 * Updated the package environment, dependencies and the package details.
 * Fixed the issues.
-    - [#29](https://github.com/Mindinventory/vimeo_video_player/issues/29),
-    - [#31](https://github.com/Mindinventory/vimeo_video_player/issues/31),
-    - [#34](https://github.com/Mindinventory/vimeo_video_player/issues/34).
-* Merged the PR #[#30](https://github.com/Mindinventory/vimeo_video_player/pull/30) thanks
-  to [phankietit](https://github.com/phankietit).
+    - [#29](https://github.com/Mindinventory/vimeo_video_player/issues/29)
+    - [#31](https://github.com/Mindinventory/vimeo_video_player/issues/31)
+    - [#34](https://github.com/Mindinventory/vimeo_video_player/issues/34)
+* Merged the PR [#30](https://github.com/Mindinventory/vimeo_video_player/pull/30) - crash on back
+  when the video is playing thanks to [phankietit](https://github.com/phankietit).
 
 ## 0.0.10
 

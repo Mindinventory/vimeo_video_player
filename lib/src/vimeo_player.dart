@@ -67,7 +67,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   /// video player controller
   VideoPlayerController? _videoPlayerController;
 
-  final VideoPlayerController _emptyVideoPlayerController = VideoPlayerController.networkUrl(Uri.parse(''));
+  final VideoPlayerController _emptyVideoPlayerController =
+      VideoPlayerController.networkUrl(Uri.parse(''));
 
   /// flick manager to manage the flick player
   FlickManager? _flickManager;
@@ -128,7 +129,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     if (startAt != null && _videoPlayerController != null) {
       _videoPlayerController!.addListener(() {
         final VideoPlayerValue videoData = _videoPlayerController!.value;
-        if (videoData.isInitialized && videoData.duration > startAt && !_isSeekedVideo) {
+        if (videoData.isInitialized &&
+            videoData.duration > startAt &&
+            !_isSeekedVideo) {
           _videoPlayerController!.seekTo(startAt);
           _isSeekedVideo = true;
         } // else ignore, incorrect value
@@ -140,7 +143,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     final onProgressCallback = widget.onProgress;
     final onFinishCallback = widget.onFinished;
 
-    if (_videoPlayerController != null && (onProgressCallback != null || onFinishCallback != null)) {
+    if (_videoPlayerController != null &&
+        (onProgressCallback != null || onFinishCallback != null)) {
       _videoPlayerController!.addListener(() {
         final VideoPlayerValue videoData = _videoPlayerController!.value;
         if (videoData.isInitialized) {
@@ -167,7 +171,10 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
       if (progressiveList != null && progressiveList.isNotEmpty) {
         progressiveList.map((element) {
-          if (element != null && element.url != null && element.url != '' && vimeoMp4Video == '') {
+          if (element != null &&
+              element.url != null &&
+              element.url != '' &&
+              vimeoMp4Video == '') {
             vimeoMp4Video = element.url ?? '';
           }
         }).toList();
@@ -176,12 +183,14 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
         }
       }
 
-      _videoPlayerController = VideoPlayerController.networkUrl(Uri.parse(vimeoMp4Video));
+      _videoPlayerController =
+          VideoPlayerController.networkUrl(Uri.parse(vimeoMp4Video));
       _setVideoInitialPosition();
       _setVideoListeners();
 
       _flickManager = FlickManager(
-        videoPlayerController: _videoPlayerController ?? _emptyVideoPlayerController,
+        videoPlayerController:
+            _videoPlayerController ?? _emptyVideoPlayerController,
         autoPlay: widget.autoPlay,
         // ignore: use_build_context_synchronously
       )..registerContext(context);
@@ -209,7 +218,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
                     videoFit: BoxFit.fitWidth,
                     controls: FlickPortraitControls(),
                   ),
-                  flickVideoWithControlsFullscreen: const FlickVideoWithControls(
+                  flickVideoWithControlsFullscreen:
+                      const FlickVideoWithControls(
                     controls: FlickLandscapeControls(),
                   ),
                 )
