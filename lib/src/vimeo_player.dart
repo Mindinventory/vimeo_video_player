@@ -68,7 +68,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   VideoPlayerController? _videoPlayerController;
 
   final VideoPlayerController _emptyVideoPlayerController =
-  VideoPlayerController.networkUrl(Uri.parse(''));
+      VideoPlayerController.networkUrl(Uri.parse(''));
 
   /// flick manager to manage the flick player
   FlickManager? _flickManager;
@@ -190,7 +190,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
       _flickManager = FlickManager(
         videoPlayerController:
-        _videoPlayerController ?? _emptyVideoPlayerController,
+            _videoPlayerController ?? _emptyVideoPlayerController,
         autoPlay: widget.autoPlay,
         // ignore: use_build_context_synchronously
       )..registerContext(context);
@@ -207,28 +207,28 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
         builder: (context, bool isVideo, child) => Container(
           child: isVideo
               ? FlickVideoPlayer(
-            key: ObjectKey(_flickManager),
-            flickManager: _flickManager ??
-                FlickManager(
-                  videoPlayerController: _emptyVideoPlayerController,
-                ),
-            systemUIOverlay: widget.systemUiOverlay,
-            preferredDeviceOrientation: widget.deviceOrientation,
-            flickVideoWithControls: const FlickVideoWithControls(
-              videoFit: BoxFit.fitWidth,
-              controls: FlickPortraitControls(),
-            ),
-            flickVideoWithControlsFullscreen:
-            const FlickVideoWithControls(
-              controls: FlickLandscapeControls(),
-            ),
-          )
+                  key: ObjectKey(_flickManager),
+                  flickManager: _flickManager ??
+                      FlickManager(
+                        videoPlayerController: _emptyVideoPlayerController,
+                      ),
+                  systemUIOverlay: widget.systemUiOverlay,
+                  preferredDeviceOrientation: widget.deviceOrientation,
+                  flickVideoWithControls: const FlickVideoWithControls(
+                    videoFit: BoxFit.fitWidth,
+                    controls: FlickPortraitControls(),
+                  ),
+                  flickVideoWithControlsFullscreen:
+                      const FlickVideoWithControls(
+                    controls: FlickLandscapeControls(),
+                  ),
+                )
               : const Center(
-            child: CircularProgressIndicator(
-              color: Colors.grey,
-              backgroundColor: Colors.white,
-            ),
-          ),
+                  child: CircularProgressIndicator(
+                    color: Colors.grey,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
         ),
       ),
       onPopInvoked: (didPop) {
@@ -240,9 +240,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   /// used to get valid vimeo video configuration
   Future<VimeoVideoConfig?> _getVimeoVideoConfigFromUrl(
-      String url, {
-        bool trimWhitespaces = true,
-      }) async {
+    String url, {
+    bool trimWhitespaces = true,
+  }) async {
     if (trimWhitespaces) url = url.trim();
 
     /// here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
@@ -257,7 +257,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     var videoIdGroup = 1;
     for (var exp in [
       // RegExp(r"^((https?)://)?(www.)?vimeo\.com/(\d+).*$"),
-      RegExp(r'^(?:http|https)?:?/?/?(?:www\.)?(?:player\.)?vimeo\.com/(?:channels/(?:\w+/)?|groups/[^/]*/videos/|video/|)(\d+)(?:|/\?)?$'),
+      RegExp(
+          r'^(?:http|https)?:?/?/?(?:www\.)?(?:player\.)?vimeo\.com/(?:channels/(?:\w+/)?|groups/[^/]*/videos/|video/|)(\d+)(?:|/\?)?$'),
     ]) {
       RegExpMatch? match = exp.firstMatch(url);
       if (match != null && match.groupCount >= 1) {
@@ -265,8 +266,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       }
     }
 
-    if(vimeoVideoId.isEmpty) {
-      throw(Exception('Unable extract video id from given vimeo video url: $url'));
+    if (vimeoVideoId.isEmpty) {
+      throw (Exception(
+          'Unable extract video id from given vimeo video url: $url'));
     }
 
     final response = await _getVimeoVideoConfig(vimeoVideoId: vimeoVideoId);
