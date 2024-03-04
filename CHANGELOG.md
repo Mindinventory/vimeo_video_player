@@ -1,3 +1,9 @@
+## 0.0.14
+
+* Updated vimeo video RegExp and retrieve vimeo video id from matching pattern
+* Fixed the issue.
+  - [#36](https://github.com/Mindinventory/vimeo_video_player/issues/36)
+
 ## 0.0.13
 
 * Fixed the issue.
