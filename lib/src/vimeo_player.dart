@@ -247,18 +247,28 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
     /// here i'm converting the vimeo video id only and calling config api for vimeo video .mp4
     /// supports this types of urls
-    /// https://vimeo.com/70591644 => 70591644
-    /// www.vimeo.com/70591644 => 70591644
-    /// vimeo.com/70591644 => 70591644
+    /// [
+    ///       'https://vimeo.com/1234323',
+    ///       'https://vimeo.com/channels/mychannel/1234323',
+    ///       'https://player.vimeo.com/video/1234323',
+    /// ]
     var vimeoVideoId = '';
-    var videoIdGroup = 4;
+    // var videoIdGroup = 4;
+    var videoIdGroup = 1;
     for (var exp in [
-      RegExp(r"^((https?)://)?(www.)?vimeo\.com/(\d+).*$"),
+      // RegExp(r"^((https?)://)?(www.)?vimeo\.com/(\d+).*$"),
+      RegExp(
+          r'^(?:http|https)?:?/?/?(?:www\.)?(?:player\.)?vimeo\.com/(?:channels/(?:\w+/)?|groups/[^/]*/videos/|video/|)(\d+)(?:|/\?)?$'),
     ]) {
       RegExpMatch? match = exp.firstMatch(url);
       if (match != null && match.groupCount >= 1) {
         vimeoVideoId = match.group(videoIdGroup) ?? '';
       }
+    }
+
+    if (vimeoVideoId.isEmpty) {
+      throw (Exception(
+          'Unable extract video id from given vimeo video url: $url'));
     }
 
     final response = await _getVimeoVideoConfig(vimeoVideoId: vimeoVideoId);

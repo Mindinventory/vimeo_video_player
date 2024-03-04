@@ -1,3 +1,8 @@
+## 0.0.13
+
+* Fixed the issue.
+    - [#36](https://github.com/Mindinventory/vimeo_video_player/issues/36)
+
 ## 0.0.12
 
 * Updated the package details.
