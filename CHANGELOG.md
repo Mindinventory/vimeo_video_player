@@ -1,3 +1,8 @@
+## 0.0.15
+
+* Updated example for android
+* Make changes into fetching config of vimeo video
+
 ## 0.0.14
 
 * Updated vimeo video RegExp and retrieve vimeo video id from matching pattern

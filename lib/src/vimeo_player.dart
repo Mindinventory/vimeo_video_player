@@ -1,4 +1,3 @@
-import 'dart:convert';
 import 'dart:developer';
 
 import 'package:dio/dio.dart';
@@ -6,11 +5,8 @@ import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:video_player/video_player.dart';
-import 'package:webview_flutter/webview_flutter.dart';
 
 import 'model/vimeo_video_config.dart';
-
-enum VideoPlayerType { web, player, none }
 
 class VimeoVideoPlayer extends StatefulWidget {
   /// vimeo video url
@@ -78,8 +74,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   FlickManager? _flickManager;
 
   /// used to notify that video is loaded or not
-  ValueNotifier<VideoPlayerType> isVimeoVideoLoaded =
-      ValueNotifier(VideoPlayerType.none);
+  ValueNotifier<bool> isVimeoVideoLoaded = ValueNotifier(false);
 
   /// Vimeo video regexp
   final RegExp _vimeoRegExp = RegExp(
@@ -98,9 +93,6 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   /// used to check that the video is already seeked or not
   bool _isSeekedVideo = false;
-
-  /// web view controller
-  final _controller = WebViewController();
 
   @override
   void initState() {
@@ -146,8 +138,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
     return PopScope(
       child: ValueListenableBuilder(
         valueListenable: isVimeoVideoLoaded,
-        builder: (context, VideoPlayerType type, child) => Container(
-          child: type == VideoPlayerType.player
+        builder: (context, bool isVideo, child) => Container(
+          child: isVideo
               ? FlickVideoPlayer(
                   key: ObjectKey(_flickManager),
                   flickManager: _flickManager ??
@@ -165,16 +157,12 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
                     controls: FlickLandscapeControls(),
                   ),
                 )
-              : type == VideoPlayerType.web
-                  ? WebViewWidget(
-                      controller: _controller,
-                    )
-                  : const Center(
-                      child: CircularProgressIndicator(
-                        color: Colors.grey,
-                        backgroundColor: Colors.white,
-                      ),
-                    ),
+              : const Center(
+                  child: CircularProgressIndicator(
+                    color: Colors.grey,
+                    backgroundColor: Colors.white,
+                  ),
+                ),
         ),
       ),
       onPopInvoked: (didPop) {
@@ -239,28 +227,24 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
             vimeoMp4Video = element.url ?? '';
           }
         }).toList();
+        if (vimeoMp4Video.isEmpty || vimeoMp4Video == '') {
+          showAlertDialog(context);
+        }
       }
 
-      if (vimeoMp4Video.isEmpty || vimeoMp4Video == '') {
-        _controller
-          ..loadRequest(_videoPage())
-          ..setJavaScriptMode(JavaScriptMode.unrestricted);
-        isVimeoVideoLoaded.value = VideoPlayerType.web;
-      } else {
-        _videoPlayerController =
-            VideoPlayerController.networkUrl(Uri.parse(vimeoMp4Video));
-        _setVideoInitialPosition();
-        _setVideoListeners();
+      _videoPlayerController =
+          VideoPlayerController.networkUrl(Uri.parse(vimeoMp4Video));
+      _setVideoInitialPosition();
+      _setVideoListeners();
 
-        _flickManager = FlickManager(
-          videoPlayerController:
-              _videoPlayerController ?? _emptyVideoPlayerController,
-          autoPlay: widget.autoPlay,
-          // ignore: use_build_context_synchronously
-        )..registerContext(context);
+      _flickManager = FlickManager(
+        videoPlayerController:
+            _videoPlayerController ?? _emptyVideoPlayerController,
+        autoPlay: widget.autoPlay,
+        // ignore: use_build_context_synchronously
+      )..registerContext(context);
 
-        isVimeoVideoLoaded.value = VideoPlayerType.player;
-      }
+      isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
     });
   }
 
@@ -325,62 +309,5 @@ extension ShowAlertDialog on _VimeoVideoPlayerState {
   String get _videoId {
     RegExpMatch? match = _vimeoRegExp.firstMatch(widget.url);
     return match?.group(1) ?? '';
-  }
-
-  /// Create html content to play video
-  Uri _videoPage() {
-    final html = """
-        <html lang="en">
-   <head>
-      <style>
-         body {
-         background-color: black;
-         margin: 0px;
-         }
-      </style>
-      <meta
-         name="viewport"
-         content="initial-scale=1.0, maximum-scale=1.0"
-         />
-      <meta
-         http-equiv="Content-Security-Policy"
-         content="default-src * gap:; script-src * 'unsafe-inline' 'unsafe-eval'; connect-src *; img-src * data: blob: android-webview-video-poster:; style-src * 'unsafe-inline';"
-         />
-         <title></title>
-   </head>
-   <body>
-      <!-- Fetch video thumbnail using Vimeo API -->
-      <script>
-         var apiUrl = 'https://vimeo.com/api/v2/video/' + $_videoId + '.json';
-         
-         // Make a request to the Vimeo API to get video information
-         var xhr = new XMLHttpRequest();
-         xhr.onreadystatechange = function () {
-           if (xhr.readyState === 4 && xhr.status === 200) {
-             var response = JSON.parse(xhr.responseText);
-             var thumbnailUrl = response[0].thumbnail_large;
-         
-             // Set the thumbnail as the background image of the body
-             document.body.style.backgroundImage = 'url(' + thumbnailUrl + ')';
-           }
-         };
-         xhr.open('GET', apiUrl, true);
-         xhr.send();
-      </script>
-      <!-- Video iframe -->
-      <iframe
-         src="https://player.vimeo.com/video/$_videoId?loop=0&autoplay=0"
-         width="100%"
-         height="100%"
-         frameborder="0"
-         allow="fullscreen"
-         allowfullscreen
-         ></iframe>
-   </body>
-</html>
-    """;
-    final String contentBase64 =
-        base64Encode(const Utf8Encoder().convert(html));
-    return Uri.parse('data:text/html;base64,$contentBase64');
   }
 }
