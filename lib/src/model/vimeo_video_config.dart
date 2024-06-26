@@ -20,7 +20,7 @@ class VimeoFiles {
   VimeoFiles({this.progressive});
 
   factory VimeoFiles.fromJson(Map<String, dynamic> json) {
-    final jsonData = json['progressive'] as List<dynamic>;
+    final jsonData = (json['progressive'] ?? []) as List<dynamic>;
 
     final progressiveUrls = List.generate(
       jsonData.length,

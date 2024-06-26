@@ -1,6 +1,6 @@
 name: vimeo_video_player
 description: A Video Player that support videos from Vimeo platform in Flutter. This Package allow us to play any videos from Vimeo by using its Vimeo Video Id.
-version: 0.0.15
+version: 0.0.16
 repository: https://github.com/Mindinventory/vimeo_video_player
 issue_tracker: https://github.com/Mindinventory/vimeo_video_player/issues
 

@@ -1,3 +1,8 @@
+## 0.0.16
+* Fixed the issue
+  - [#41](https://github.com/Mindinventory/vimeo_video_player/issues/41)
+  - [#44](https://github.com/Mindinventory/vimeo_video_player/issues/44)
+
 ## 0.0.15
 
 * Updated example for android
