@@ -1,313 +1,221 @@
-import 'dart:developer';
+import 'dart:developer' as dev;
 
-import 'package:dio/dio.dart';
-import 'package:flick_video_player/flick_video_player.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-import 'package:video_player/video_player.dart';
+import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-import 'model/vimeo_video_config.dart';
-
+/// Vimeo video player with customizable controls and event callbacks using the InAppWebView
 class VimeoVideoPlayer extends StatefulWidget {
-  /// vimeo video url
-  final String url;
+  /// Defines the vimeo video ID to be played
+  /// [videoId] is required and cannot be empty
+  final String videoId;
 
-  /// hide/show device status-bar
-  final List<SystemUiOverlay> systemUiOverlay;
+  /// Used to auto-play the video once initialized
+  /// Default value: [false]
+  final bool isAutoPlay;
 
-  /// deviceOrientation of video view
-  final List<DeviceOrientation> deviceOrientation;
+  /// Used to play the video in a loop after it ends
+  /// Default value: [false]
+  final bool isLooping;
 
-  /// If this value is set, video will have initial position
-  /// set to given minute/second.
-  ///
-  /// Incorrect values (exceeding the video duration) will be ignored.
-  final Duration? startAt;
+  /// Used to play the video with the sound muted
+  /// Default value: [false]
+  final bool isMuted;
 
-  /// If this function is provided, it will be called periodically with
-  /// current video position (approximately every 500 ms).
-  final void Function(Duration timePoint)? onProgress;
+  /// Used to display the video title
+  /// Default value: [false]
+  final bool showTitle;
 
-  /// If this function is provided, it will be called when video
-  /// finishes playback.
-  final VoidCallback? onFinished;
+  /// Used to display the video byline/author
+  /// Default value: [false]
+  final bool showByline;
 
-  /// to auto-play the video once initialized
-  final bool autoPlay;
+  /// Used to display the video playback controls
+  /// Default value: [true]
+  final bool showControls;
 
-  /// Options to pass in Dio GET request
-  /// Used in vimeo video public API call to get the video config
-  final Options? dioOptionsForVimeoVideoConfig;
+  /// Used to enable Do Not Track (DNT) mode
+  /// When enabled, the player will not track any viewing information
+  /// Default value: [true]
+  final bool enableDNT;
 
-  const VimeoVideoPlayer({
-    required this.url,
-    this.systemUiOverlay = const [
-      SystemUiOverlay.top,
-      SystemUiOverlay.bottom,
-    ],
-    this.deviceOrientation = const [
-      DeviceOrientation.landscapeLeft,
-      DeviceOrientation.landscapeRight,
-      DeviceOrientation.portraitUp,
-      DeviceOrientation.portraitDown,
-    ],
-    this.startAt,
-    this.onProgress,
-    this.onFinished,
-    this.autoPlay = false,
-    this.dioOptionsForVimeoVideoConfig,
+  /// Defines the background color of the InAppWebView
+  /// Default Value: [Colors.black]
+  final Color backgroundColor;
+
+  /// Defines a callback function triggered when the player is ready to play the video
+  final VoidCallback? onReady;
+
+  /// Defines a callback function triggered when the video begins playing
+  final VoidCallback? onPlay;
+
+  /// Defines a callback function triggered when the video is paused
+  final VoidCallback? onPause;
+
+  /// Defines a callback function triggered when the video playback finishes
+  final VoidCallback? onFinish;
+
+  /// Defines a callback function triggered when the video playback position is modified
+  final VoidCallback? onSeek;
+
+  VimeoVideoPlayer({
     super.key,
-  });
+    required this.videoId,
+    this.isAutoPlay = false,
+    this.isLooping = false,
+    this.isMuted = false,
+    this.showTitle = false,
+    this.showByline = false,
+    this.showControls = true,
+    this.enableDNT = true,
+    this.backgroundColor = Colors.black,
+    this.onReady,
+    this.onPlay,
+    this.onPause,
+    this.onFinish,
+    this.onSeek,
+  }) : assert(videoId.isNotEmpty, 'videoId cannot be empty!');
 
   @override
   State<VimeoVideoPlayer> createState() => _VimeoVideoPlayerState();
 }
 
 class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
-  /// video player controller
-  VideoPlayerController? _videoPlayerController;
-
-  final VideoPlayerController _emptyVideoPlayerController =
-      VideoPlayerController.networkUrl(Uri.parse(''));
-
-  /// flick manager to manage the flick player
-  FlickManager? _flickManager;
-
-  /// used to notify that video is loaded or not
-  ValueNotifier<bool> isVimeoVideoLoaded = ValueNotifier(false);
-
-  /// Vimeo video regexp
-  final RegExp _vimeoRegExp = RegExp(
-    r'^(?:http|https)?:?/?/?(?:www\.)?(?:player\.)?vimeo\.com/(?:channels/(?:\w+/)?|groups/[^/]*/videos/|video/|)(\d+)(?:|/\?)?$',
-    caseSensitive: false,
-    multiLine: false,
-  );
-
-  /// used to check that the url format is valid vimeo video format
-  bool get _isVimeoVideo {
-    var regExp = _vimeoRegExp;
-    final match = regExp.firstMatch(widget.url);
-    if (match != null && match.groupCount >= 1) return true;
-    return false;
-  }
-
-  /// used to check that the video is already seeked or not
-  bool _isSeekedVideo = false;
-
-  @override
-  void initState() {
-    super.initState();
-
-    /// checking that vimeo url is valid or not
-    if (_isVimeoVideo) {
-      if (_videoId.isEmpty) {
-        throw (Exception(
-            'Unable extract video id from given vimeo video url: ${widget.url}'));
-      }
-
-      _videoPlayer();
-    } else {
-      throw (Exception('Invalid vimeo video url: ${widget.url}'));
-    }
-  }
-
-  @override
-  void deactivate() {
-    _videoPlayerController?.pause();
-    super.deactivate();
-  }
-
-  @override
-  void dispose() {
-    /// disposing the controllers
-    _flickManager = null;
-    _flickManager?.dispose();
-    _videoPlayerController = null;
-    _videoPlayerController?.dispose();
-    _emptyVideoPlayerController.dispose();
-    isVimeoVideoLoaded.dispose();
-    SystemChrome.setEnabledSystemUIMode(
-      SystemUiMode.manual,
-      overlays: SystemUiOverlay.values,
-    ); // to re-show bars
-    super.dispose();
-  }
+  /// Used to notify that video is loaded or not
+  bool isVideoLoading = true;
 
   @override
   Widget build(BuildContext context) {
-    return PopScope(
-      child: ValueListenableBuilder(
-        valueListenable: isVimeoVideoLoaded,
-        builder: (context, bool isVideo, child) => Container(
-          child: isVideo
-              ? FlickVideoPlayer(
-                  key: ObjectKey(_flickManager),
-                  flickManager: _flickManager ??
-                      FlickManager(
-                        videoPlayerController: _emptyVideoPlayerController,
-                      ),
-                  systemUIOverlay: widget.systemUiOverlay,
-                  preferredDeviceOrientation: widget.deviceOrientation,
-                  flickVideoWithControls: const FlickVideoWithControls(
-                    videoFit: BoxFit.fitWidth,
-                    controls: FlickPortraitControls(),
-                  ),
-                  flickVideoWithControlsFullscreen:
-                      const FlickVideoWithControls(
-                    controls: FlickLandscapeControls(),
-                  ),
-                )
-              : const Center(
-                  child: CircularProgressIndicator(
-                    color: Colors.grey,
-                    backgroundColor: Colors.white,
-                  ),
-                ),
-        ),
-      ),
-      onPopInvoked: (didPop) {
-        /// pausing the video before the navigator pop
-        _videoPlayerController?.pause();
-      },
-    );
-  }
-
-  void _setVideoInitialPosition() {
-    final Duration? startAt = widget.startAt;
-
-    if (startAt != null && _videoPlayerController != null) {
-      _videoPlayerController!.addListener(() {
-        final VideoPlayerValue videoData = _videoPlayerController!.value;
-        if (videoData.isInitialized &&
-            videoData.duration > startAt &&
-            !_isSeekedVideo) {
-          _videoPlayerController!.seekTo(startAt);
-          _isSeekedVideo = true;
-        } // else ignore, incorrect value
-      });
-    }
-  }
-
-  void _setVideoListeners() {
-    final onProgressCallback = widget.onProgress;
-    final onFinishCallback = widget.onFinished;
-
-    if (_videoPlayerController != null &&
-        (onProgressCallback != null || onFinishCallback != null)) {
-      _videoPlayerController!.addListener(() {
-        final VideoPlayerValue videoData = _videoPlayerController!.value;
-        if (videoData.isInitialized) {
-          if (videoData.isPlaying) {
-            if (onProgressCallback != null) {
-              onProgressCallback.call(videoData.position);
+    return Stack(
+      children: [
+        InAppWebView(
+          initialSettings: InAppWebViewSettings(
+            mediaPlaybackRequiresUserGesture: false,
+            allowsInlineMediaPlayback: true,
+            useHybridComposition: true,
+          ),
+          initialData: InAppWebViewInitialData(
+            data: _buildHtmlContent(),
+            baseUrl: WebUri("https://player.vimeo.com"),
+          ),
+          onConsoleMessage: (controller, consoleMessage) {
+            final message = consoleMessage.message;
+            dev.log('onConsoleMessage :: $message');
+            if (message.startsWith('vimeo:')) {
+              _manageVimeoPlayerEvent(message.substring(6));
             }
-          } else if (videoData.duration == videoData.position) {
-            if (onFinishCallback != null) {
-              onFinishCallback.call();
-            }
-          }
-        }
-      });
-    }
-  }
-
-  void _videoPlayer() {
-    /// getting the vimeo video configuration from api and setting managers
-    _getVimeoVideoConfigFromUrl(widget.url).then((value) async {
-      final progressiveList = value?.request?.files?.progressive;
-
-      var vimeoMp4Video = '';
-
-      if (progressiveList != null && progressiveList.isNotEmpty) {
-        progressiveList.map((element) {
-          if (element != null &&
-              element.url != null &&
-              element.url != '' &&
-              vimeoMp4Video == '') {
-            vimeoMp4Video = element.url ?? '';
-          }
-        }).toList();
-        if (vimeoMp4Video.isEmpty || vimeoMp4Video == '') {
-          showAlertDialog(context);
-        }
-      }
-
-      _videoPlayerController =
-          VideoPlayerController.networkUrl(Uri.parse(vimeoMp4Video));
-      _setVideoInitialPosition();
-      _setVideoListeners();
-
-      _flickManager = FlickManager(
-        videoPlayerController:
-            _videoPlayerController ?? _emptyVideoPlayerController,
-        autoPlay: widget.autoPlay,
-        // ignore: use_build_context_synchronously
-      )..registerContext(context);
-
-      isVimeoVideoLoaded.value = !isVimeoVideoLoaded.value;
-    });
-  }
-
-  /// used to get valid vimeo video configuration
-  Future<VimeoVideoConfig?> _getVimeoVideoConfigFromUrl(
-    String url, {
-    bool trimWhitespaces = true,
-  }) async {
-    if (trimWhitespaces) url = url.trim();
-
-    final response = await _getVimeoVideoConfig(vimeoVideoId: _videoId);
-    return (response != null) ? response : null;
-  }
-
-  /// give vimeo video configuration from api
-  Future<VimeoVideoConfig?> _getVimeoVideoConfig({
-    required String vimeoVideoId,
-  }) async {
-    try {
-      Response responseData = await Dio().get(
-        'https://player.vimeo.com/video/$vimeoVideoId/config',
-        options: widget.dioOptionsForVimeoVideoConfig,
-      );
-      var vimeoVideo = VimeoVideoConfig.fromJson(responseData.data);
-      return vimeoVideo;
-    } on DioException catch (e) {
-      log('Dio Error : ', name: e.error.toString());
-      return null;
-    } on Exception catch (e) {
-      log('Error : ', name: e.toString());
-      return null;
-    }
-  }
-}
-
-// ignore: library_private_types_in_public_api
-extension ShowAlertDialog on _VimeoVideoPlayerState {
-  showAlertDialog(BuildContext context) {
-    // set up the AlertDialog
-    AlertDialog alert = AlertDialog(
-      title: const Text("Alert"),
-      content: const Text("Some thing wrong with this url"),
-      actions: [
-        TextButton(
-          child: const Text("OK"),
-          onPressed: () {
-            Navigator.of(context).pop();
+          },
+          onLoadStart: (controller, url) {
+            setState(() {
+              isVideoLoading = true;
+            });
+          },
+          onLoadStop: (controller, url) {
+            setState(() {
+              isVideoLoading = false;
+            });
           },
         ),
+        if (isVideoLoading)
+          const Center(
+            child: CircularProgressIndicator(
+              color: Colors.grey,
+              backgroundColor: Colors.white,
+            ),
+          ),
       ],
-    );
-
-    // show the dialog
-    showDialog(
-      context: context,
-      builder: (BuildContext context) {
-        return alert;
-      },
     );
   }
 
-  String get _videoId {
-    RegExpMatch? match = _vimeoRegExp.firstMatch(widget.url);
-    return match?.group(1) ?? '';
+  /// Builds the HTML content for the vimeo player
+  String _buildHtmlContent() {
+    return '''
+    <!DOCTYPE html>
+    <html>
+      <head>
+        <style>
+          body {
+            margin: 0;
+            padding: 0;
+            background-color: ${_colorToHex(widget.backgroundColor)};
+          }
+          .video-container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+          }
+          iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+          }
+        </style>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+        <script src="https://player.vimeo.com/api/player.js"></script>
+      </head>
+      <body>
+        <div class="video-container">
+          <iframe 
+            id="player"
+            src="${_buildIframeUrl()}"
+            frameborder="0"
+            allow="autoplay; fullscreen; picture-in-picture"
+            allowfullscreen 
+            webkitallowfullscreen 
+            mozallowfullscreen>
+          </iframe>
+        </div>
+        <script>
+          const player = new Vimeo.Player('player');
+          player.ready().then(() => console.log('vimeo:onReady'));
+          player.on('play', () => console.log('vimeo:onPlay'));
+          player.on('pause', () => console.log('vimeo:onPause'));
+          player.on('ended', () => console.log('vimeo:onFinish'));
+          player.on('seeked', () => console.log('vimeo:onSeek'));
+        </script>
+      </body>
+    </html>
+    ''';
+  }
+
+  /// Builds the iframe URL
+  String _buildIframeUrl() {
+    return 'https://player.vimeo.com/video/${widget.videoId}?'
+        'autoplay=${widget.isAutoPlay}'
+        '&loop=${widget.isLooping}'
+        '&muted=${widget.isMuted}'
+        '&title=${widget.showTitle}'
+        '&byline=${widget.showByline}'
+        '&controls=${widget.showControls}'
+        '&dnt=${widget.enableDNT}';
+  }
+
+  /// Manage vimeo player events received from the WebView
+  void _manageVimeoPlayerEvent(String event) {
+    debugPrint('Vimeo event: $event');
+    switch (event) {
+      case 'onReady':
+        widget.onReady?.call();
+        break;
+      case 'onPlay':
+        widget.onPlay?.call();
+        break;
+      case 'onPause':
+        widget.onPause?.call();
+        break;
+      case 'onFinish':
+        widget.onFinish?.call();
+        break;
+      case 'onSeek':
+        widget.onSeek?.call();
+        break;
+    }
+  }
+
+  /// Converts Color to a hexadecimal string
+  String _colorToHex(Color color) {
+    final hex = color.value.toRadixString(16).padLeft(8, '0');
+    return '#${hex.substring(2)}'; // Remove the leading 'ff' for opacity
   }
 }
