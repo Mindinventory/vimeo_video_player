@@ -22,7 +22,7 @@ version: 1.0.0
 
 environment:
   sdk: ^3.2.0
-  flutter: ^3.16.0 # Build using this version
+  flutter: '>=3.16.0' # Build using this version
 
 # Dependencies specify other packages that your package needs in order to work.
 # To automatically upgrade your package dependencies to the latest versions
