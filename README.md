@@ -15,9 +15,6 @@
 <img src="https://img.shields.io/badge/platform-Mac-deepskyblue">
 </a>
 <a href="" style="pointer-events: stroke;" target="_blank">
-<img src="https://img.shields.io/badge/platform-Linux-deepskyblue">
-</a>
-<a href="" style="pointer-events: stroke;" target="_blank">
 <img src="https://img.shields.io/badge/platform-Windows-deepskyblue">
 </a>
 <a href=""><img src="https://app.codacy.com/project/badge/Grade/dc683c9cc61b499fa7cdbf54e4d9ff35"/></a>
