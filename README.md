@@ -119,5 +119,5 @@ Visit our website [mindinventory.com](https://www.mindinventory.com)
 
 Let us know if you are interested to building Apps or Designing Products.
 <p><a href="https://www.mindinventory.com/contact-us.php?utm_source=gthb&utm_medium=repo&utm_campaign=vimeo_video_player" target="__blank">
-<img src="https://github.com/Mindinventory/vimeo_video_player/raw/main/assets/have_a_project_button.png" width="203" height="43"  alt="flutter app development">
+<img src="https://github.com/Mindinventory/vimeo_video_player/raw/master/assets/have_a_project_button.png" width="203" height="43"  alt="flutter app development">
 </a></p>
