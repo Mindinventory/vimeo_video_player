@@ -32,7 +32,9 @@ playback directly in your Flutter app.
 * Supports customizable controls like `isAutoPlay`, `isLooping`, `isMuted`, `showTitle`,
   `showByline`,
   `showControls`, `enableDNT`, `backgroundColor`.
-* Event callbacks include `onReady`, `onPlay`, `onPause`, `onFinish`, and `onSeek`.
+* Event callbacks include `onReady`, `onPlay`, `onPause`, `onFinish`, `onSeek`,
+  `onInAppWebViewCreated`, `onInAppWebViewLoadStart`, `onInAppWebViewLoadStop`, and
+  `onInAppWebViewReceivedError`.
 
 # Preview
 
