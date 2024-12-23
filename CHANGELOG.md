@@ -1,3 +1,9 @@
+## 1.0.1
+
+* Added InAppWebView callbacks: `onInAppWebViewCreated`, `onInAppWebViewLoadStart`,
+  `onInAppWebViewLoadStop`, and `onInAppWebViewReceivedError` to enhance event handling.
+* Updated the library details.
+
 ## 1.0.0
 
 * **BREAKING CHANGE**: The library now uses an `InAppWebView` to play Vimeo videos,
@@ -14,7 +20,7 @@
     - [#41](https://github.com/Mindinventory/vimeo_video_player/issues/41) - Version failure.
 * Merged the PR.
     - [#44](https://github.com/Mindinventory/vimeo_video_player/pull/44) - Update flick_video_player
-      to 0.8.0 Thanks to [harmjanr](https://github.com/harmjanr).
+      to 0.8.0, Thanks to [harmjanr](https://github.com/harmjanr).
 * Updated the library details.
 
 ## 0.0.15
@@ -52,7 +58,7 @@
       dependencies.
 * Merged the PR.
     - [#30](https://github.com/Mindinventory/vimeo_video_player/pull/30) - fix: crash on back when
-      the video is playing Thanks to [phankietit](https://github.com/phankietit).
+      the video is playing, Thanks to [phankietit](https://github.com/phankietit).
 * Updated the library details.
 
 ## 0.0.10
@@ -76,8 +82,8 @@
 ## 0.0.7
 
 * Merged the PR.
-    - [#17](https://github.com/Mindinventory/vimeo_video_player/pull/17) - Autoplay video
-      Thanks to [mrossi-os](https://github.com/mrossi-os).
+    - [#17](https://github.com/Mindinventory/vimeo_video_player/pull/17) - Autoplay video, Thanks
+      to [mrossi-os](https://github.com/mrossi-os).
 * Improved the code.
 * Updated the library details.
 
@@ -92,7 +98,7 @@
 
 * Merged the PR.
     - [#8](https://github.com/Mindinventory/vimeo_video_player/pull/8) - Start time, progress &
-      finish listeners Thanks to [piotrszych](https://github.com/piotrszych).
+      finish listeners, Thanks to [piotrszych](https://github.com/piotrszych).
 * Updated the library details.
 
 ## 0.0.4

@@ -61,7 +61,7 @@ VimeoVideoPlayer(
 |----------------|-----------------------------------------------------------------------------|
 | String videoId | Defines the vimeo video ID to be played, it is required and cannot be empty |
 
-### Optional parameters of VimeoVideoPlayer
+### Optional parameters of VimeoVideoPlayer with Default value
 ------------
 
 | Parameter              | Default      | Description                                                                                             |
@@ -74,13 +74,23 @@ VimeoVideoPlayer(
 | bool showControls      | true         | Used to display the video playback controls                                                             |
 | bool enableDNT         | true         | Used to enable Do Not Track (DNT) mode, When enabled, the player will not track any viewing information |
 | Color backgroundColor  | Colors.black | Defines the background color of the InAppWebView                                                        |
-| VoidCallback? onReady  | -            | Defines a callback function triggered when the player is ready to play the video                        |
-| VoidCallback? onPlay   | -            | Defines a callback function triggered when the video begins playing                                     |
-| VoidCallback? onPause  | -            | Defines a callback function triggered when the video is paused                                          |
-| VoidCallback? onFinish | -            | Defines a callback function triggered when the video playback finishes                                  |
-| VoidCallback? onSeek   | -            | Defines a callback function triggered when the video playback position is modified                      |
 
-### Dependencies
+### Optional parameters of VimeoVideoPlayer
+------------
+
+| Parameter                                                                                                                    | Description                                                                                  |
+|------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------|
+| VoidCallback? onReady                                                                                                        | Defines a callback function triggered when the player is ready to play the video             |
+| VoidCallback? onPlay                                                                                                         | Defines a callback function triggered when the video begins playing                          |
+| VoidCallback? onPause                                                                                                        | Defines a callback function triggered when the video is paused                               |
+| VoidCallback? onFinish                                                                                                       | Defines a callback function triggered when the video playback finishes                       |
+| VoidCallback? onSeek                                                                                                         | Defines a callback function triggered when the video playback position is modified           |
+| Function(InAppWebViewController controller)? onInAppWebViewCreated                                                           | Defines a callback function triggered when the WebView is created                            |
+| Function(InAppWebViewController controller, WebUri? url)? onInAppWebViewLoadStart                                            | Defines a callback function triggered when the WebView starts to load an url                 |
+| Function(InAppWebViewController controller, WebUri? url)? onInAppWebViewLoadStop                                             | Defines a callback function triggered when the WebView finishes loading an url               |
+| Function(InAppWebViewController controller, WebResourceRequest request, WebResourceError error)? onInAppWebViewReceivedError | Defines a callback function triggered when the WebView encounters an error loading a request |
+
+## Dependencies
 
 * [flutter_inappwebview](https://pub.dev/packages/flutter_inappwebview): ^6.1.5
 
