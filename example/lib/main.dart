@@ -60,7 +60,8 @@ class _MyHomePageState extends State<MyHomePage> {
                 });
               },
             ),
-            if (isVideoLoading) const Center(child: CircularProgressIndicator()),
+            if (isVideoLoading)
+              const Center(child: CircularProgressIndicator()),
           ],
         ),
       ),
