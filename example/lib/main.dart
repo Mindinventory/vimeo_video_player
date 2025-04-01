@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:vimeo_video_player/vimeo_video_player.dart';
 
 void main() => runApp(const MyApp());
@@ -28,12 +27,27 @@ class _MyHomePageState extends State<MyHomePage> {
   bool isVideoLoading = true;
 
   /// Controller of the WebView
-  InAppWebViewController? webViewController;
+  late VimeoController controller;
+
+  @override
+  void initState() {
+    super.initState();
+
+    controller = VimeoController(onReady: () {
+      setState(() {
+        isVideoLoading = false;
+      });
+    }, onPlay: (_) {
+      setState(() {});
+    }, onPause: (_) {
+      setState(() {});
+    });
+  }
 
   @override
   void dispose() {
     super.dispose();
-    webViewController?.dispose();
+    controller.dispose();
   }
 
   @override
@@ -41,27 +55,35 @@ class _MyHomePageState extends State<MyHomePage> {
     return Scaffold(
       backgroundColor: Colors.black,
       body: SafeArea(
-        child: Stack(
+        child: Column(
           children: [
-            VimeoVideoPlayer(
-              videoId: '12860646',
-              isAutoPlay: true,
-              onInAppWebViewCreated: (controller) {
-                webViewController = controller;
+            SizedBox(
+                height: 200,
+                child: Stack(
+                  children: [
+                    VimeoVideoPlayer(
+                      videoId: '12860646',
+                      isAutoPlay: false,
+                      controller: controller,
+                    ),
+                    if (isVideoLoading)
+                      const Center(child: CircularProgressIndicator()),
+                  ],
+                )),
+            IconButton(
+              onPressed: () async {
+                if (controller.isPlaying) {
+                  await controller.pause();
+                } else {
+                  await controller.play();
+                }
               },
-              onInAppWebViewLoadStart: (controller, url) {
-                setState(() {
-                  isVideoLoading = true;
-                });
-              },
-              onInAppWebViewLoadStop: (controller, url) {
-                setState(() {
-                  isVideoLoading = false;
-                });
-              },
-            ),
-            if (isVideoLoading)
-              const Center(child: CircularProgressIndicator()),
+              icon: Icon(
+                controller.isPlaying ? Icons.pause : Icons.play_arrow,
+                size: 30,
+              ),
+              color: Colors.white,
+            )
           ],
         ),
       ),

@@ -3,7 +3,8 @@ import 'dart:developer' as dev;
 import 'package:flutter/material.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 
-/// Vimeo video player with customizable controls and event callbacks using the InAppWebView
+import 'vimeo_controller.dart';
+
 class VimeoVideoPlayer extends StatelessWidget {
   /// Defines the vimeo video ID to be played
   ///
@@ -51,46 +52,14 @@ class VimeoVideoPlayer extends StatelessWidget {
   /// Default Value: [Colors.black]
   final Color backgroundColor;
 
-  /// Defines a callback function triggered when the player is ready to play the video
-  final VoidCallback? onReady;
+  final String? secret;
 
-  /// Defines a callback function triggered when the video begins playing
-  final VoidCallback? onPlay;
-
-  /// Defines a callback function triggered when the video is paused
-  final VoidCallback? onPause;
-
-  /// Defines a callback function triggered when the video playback finishes
-  final VoidCallback? onFinish;
-
-  /// Defines a callback function triggered when the video playback position is modified
-  final VoidCallback? onSeek;
-
-  /// Defines a callback function triggered when the WebView is created
-  final Function(InAppWebViewController controller)? onInAppWebViewCreated;
-
-  /// Defines a callback function triggered when the WebView starts to load an url
-  final Function(
-    InAppWebViewController controller,
-    WebUri? url,
-  )? onInAppWebViewLoadStart;
-
-  /// Defines a callback function triggered when the WebView finishes loading an url
-  final Function(
-    InAppWebViewController controller,
-    WebUri? url,
-  )? onInAppWebViewLoadStop;
-
-  /// Defines a callback function triggered when the WebView encounters an error loading a request
-  final Function(
-    InAppWebViewController controller,
-    WebResourceRequest request,
-    WebResourceError error,
-  )? onInAppWebViewReceivedError;
+  final VimeoController controller;
 
   VimeoVideoPlayer({
     super.key,
     required this.videoId,
+    required this.controller,
     this.isAutoPlay = false,
     this.isLooping = false,
     this.isMuted = false,
@@ -99,15 +68,7 @@ class VimeoVideoPlayer extends StatelessWidget {
     this.showControls = true,
     this.enableDNT = true,
     this.backgroundColor = Colors.black,
-    this.onReady,
-    this.onPlay,
-    this.onPause,
-    this.onFinish,
-    this.onSeek,
-    this.onInAppWebViewCreated,
-    this.onInAppWebViewLoadStart,
-    this.onInAppWebViewLoadStop,
-    this.onInAppWebViewReceivedError,
+    this.secret,
   }) : assert(videoId.isNotEmpty, 'videoId cannot be empty!');
 
   @override
@@ -122,17 +83,17 @@ class VimeoVideoPlayer extends StatelessWidget {
         data: _buildHtmlContent(),
         baseUrl: WebUri("https://player.vimeo.com"),
       ),
-      onConsoleMessage: (controller, consoleMessage) {
+      onConsoleMessage: (webController, consoleMessage) {
         final message = consoleMessage.message;
         dev.log('onConsoleMessage :: $message');
-        if (message.startsWith('vimeo:')) {
-          _manageVimeoPlayerEvent(message.substring(6));
+        if (message.startsWith('vimeo|')) {
+          controller.parseConsoleLog(message.substring(6));
         }
       },
-      onWebViewCreated: onInAppWebViewCreated,
-      onLoadStart: onInAppWebViewLoadStart,
-      onLoadStop: onInAppWebViewLoadStop,
-      onReceivedError: onInAppWebViewReceivedError,
+      onWebViewCreated: (webController) {
+        controller.setController(webController);
+      },
+      onReceivedError: (controller, request, error) {},
     );
   }
 
@@ -177,12 +138,13 @@ class VimeoVideoPlayer extends StatelessWidget {
           </iframe>
         </div>
         <script>
-          const player = new Vimeo.Player('player');
-          player.ready().then(() => console.log('vimeo:onReady'));
-          player.on('play', () => console.log('vimeo:onPlay'));
-          player.on('pause', () => console.log('vimeo:onPause'));
-          player.on('ended', () => console.log('vimeo:onFinish'));
-          player.on('seeked', () => console.log('vimeo:onSeek'));
+          window.player = new Vimeo.Player('player');
+          window.player.ready().then(() => console.log('vimeo|onReady'));
+          window.player.on('play', (data) => console.log('vimeo|onPlay|' + JSON.stringify(data)));
+          window.player.on('pause', (data) => console.log('vimeo|onPause|' + JSON.stringify(data)));
+          window.player.on('ended', (data) => console.log('vimeo|onFinish|' + JSON.stringify(data)));
+          window.player.on('seeked', (data) => console.log('vimeo|onSeek|' + JSON.stringify(data)));
+          window.player.on('timeupdate', (data) => console.log('vimeo|onTimeUpdate|' + JSON.stringify(data)));
         </script>
       </body>
     </html>
@@ -191,6 +153,7 @@ class VimeoVideoPlayer extends StatelessWidget {
 
   /// Builds the iframe URL
   String _buildIframeUrl() {
+    var additional = secret == null ? '' : '&h=$secret';
     return 'https://player.vimeo.com/video/$videoId?'
         'autoplay=$isAutoPlay'
         '&loop=$isLooping'
@@ -198,29 +161,8 @@ class VimeoVideoPlayer extends StatelessWidget {
         '&title=$showTitle'
         '&byline=$showByline'
         '&controls=$showControls'
-        '&dnt=$enableDNT';
-  }
-
-  /// Manage vimeo player events received from the WebView
-  void _manageVimeoPlayerEvent(String event) {
-    debugPrint('Vimeo event: $event');
-    switch (event) {
-      case 'onReady':
-        onReady?.call();
-        break;
-      case 'onPlay':
-        onPlay?.call();
-        break;
-      case 'onPause':
-        onPause?.call();
-        break;
-      case 'onFinish':
-        onFinish?.call();
-        break;
-      case 'onSeek':
-        onSeek?.call();
-        break;
-    }
+        '&dnt=$enableDNT'
+        '$additional';
   }
 
   /// Converts Color to a hexadecimal string
