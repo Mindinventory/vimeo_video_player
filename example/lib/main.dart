@@ -64,8 +64,10 @@ class _MyHomePageState extends State<MyHomePage> {
                   isVideoLoading = false;
                 });
               },
+              initialPositionInSeconds: 10, // Start video at 10 seconds
             ),
-            if (isVideoLoading) const Center(child: CircularProgressIndicator()),
+            if (isVideoLoading)
+              const Center(child: CircularProgressIndicator()),
           ],
         ),
       ),

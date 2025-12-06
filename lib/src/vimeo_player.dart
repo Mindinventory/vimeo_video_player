@@ -3,9 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
 import 'package:vimeo_video_player/mobile/web_listener_stub.dart'
-if (dart.library.js_interop) 'package:vimeo_video_player/web/web_listener_web.dart';
-
-
+    if (dart.library.js_interop) 'package:vimeo_video_player/web/web_listener_web.dart';
 
 /// Vimeo video player with customizable controls and event callbacks using the InAppWebView
 class VimeoVideoPlayer extends StatefulWidget {
@@ -94,23 +92,20 @@ class VimeoVideoPlayer extends StatefulWidget {
   final Function(InAppWebViewController controller)? onInAppWebViewCreated;
 
   /// Defines a callback function triggered when the WebView starts to load an url
-  final Function(
-    InAppWebViewController controller,
-    WebUri? url,
-  )? onInAppWebViewLoadStart;
+  final Function(InAppWebViewController controller, WebUri? url)?
+  onInAppWebViewLoadStart;
 
   /// Defines a callback function triggered when the WebView finishes loading an url
-  final Function(
-    InAppWebViewController controller,
-    WebUri? url,
-  )? onInAppWebViewLoadStop;
+  final Function(InAppWebViewController controller, WebUri? url)?
+  onInAppWebViewLoadStop;
 
   /// Defines a callback function triggered when the WebView encounters an error loading a request
   final Function(
     InAppWebViewController controller,
     WebResourceRequest request,
     WebResourceError error,
-  )? onInAppWebViewReceivedError;
+  )?
+  onInAppWebViewReceivedError;
 
   /// Defines a callback function triggered when the WebView enters full screen
   final void Function(InAppWebViewController controller)? onEnterFullscreen;
@@ -120,6 +115,9 @@ class VimeoVideoPlayer extends StatefulWidget {
 
   /// Defines a callback function that notifies current video position
   final ValueChanged<double>? currentPositionInSeconds;
+
+  /// Defines the initial video position in seconds
+  int? initialPositionInSeconds;
 
   VimeoVideoPlayer({
     super.key,
@@ -148,6 +146,7 @@ class VimeoVideoPlayer extends StatefulWidget {
     this.onEnterFullscreen,
     this.onExitFullscreen,
     this.currentPositionInSeconds,
+    this.initialPositionInSeconds,
   }) : assert(videoId.isNotEmpty, 'videoId cannot be empty!');
 
   @override
@@ -155,7 +154,6 @@ class VimeoVideoPlayer extends StatefulWidget {
 }
 
 class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
-
   @override
   void initState() {
     super.initState();
@@ -266,7 +264,10 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
         player.on('play', function() { sendEventToFlutter('onPlay'); });
         player.on('pause', function() { sendEventToFlutter('onPause'); });
-        player.on('loaded', function() { sendEventToFlutter('onReady'); });
+        player.on('loaded', function() { 
+          sendEventToFlutter('onReady'); 
+          ${widget.initialPositionInSeconds != null ? 'player.setCurrentTime(${widget.initialPositionInSeconds});' : ''}  
+        });
         player.on('seeked', function() { sendEventToFlutter('onSeek'); });
         player.on('ended', function() { sendEventToFlutter('onFinish'); });
         player.on('timeupdate', function(data) {
@@ -296,7 +297,8 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
   /// Manage vimeo player events received from the WebView
   void _manageVimeoPlayerEvent(String event) {
     debugPrint('Vimeo event: $event');
-    if (widget.currentPositionInSeconds != null && event.contains("currentPosition")) {
+    if (widget.currentPositionInSeconds != null &&
+        event.contains("currentPosition")) {
       final position = event.split(":").last.trim();
       widget.currentPositionInSeconds?.call(double.tryParse(position) ?? 0);
     }
