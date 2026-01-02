@@ -124,6 +124,9 @@ class VimeoVideoPlayer extends StatefulWidget {
   /// Defines the initial video position in seconds
   final int? initialPositionInSeconds;
 
+  /// Defines if using Hybrid Composition
+  final bool useHybridComposition;
+
   VimeoVideoPlayer({
     super.key,
     required this.videoId,
@@ -152,6 +155,7 @@ class VimeoVideoPlayer extends StatefulWidget {
     this.onExitFullscreen,
     this.currentPositionInSeconds,
     this.initialPositionInSeconds,
+    this.useHybridComposition = true,
   }) : assert(videoId.isNotEmpty, 'videoId cannot be empty!');
 
   @override
@@ -174,7 +178,7 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
       initialSettings: InAppWebViewSettings(
         mediaPlaybackRequiresUserGesture: false,
         allowsInlineMediaPlayback: true,
-        useHybridComposition: true,
+        useHybridComposition: widget.useHybridComposition,
         iframeAllow: "autoplay; fullscreen; picture-in-picture",
         iframeAllowFullscreen: true,
       ),
