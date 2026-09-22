@@ -183,7 +183,9 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
         baseUrl: WebUri("https://player.vimeo.com"),
       ),
       onWebViewCreated: (controller) {
-        widget.onInAppWebViewCreated!(controller);
+        if (widget.onInAppWebViewCreated != null) {
+          widget.onInAppWebViewCreated!(controller);
+        }
         if (!kIsWeb) {
           // Handle JavaScript callbacks
           controller.addJavaScriptHandler(
@@ -304,7 +306,6 @@ class _VimeoVideoPlayerState extends State<VimeoVideoPlayer> {
 
   /// Manage vimeo player events received from the WebView
   void _manageVimeoPlayerEvent(String event) {
-    debugPrint('Vimeo event: $event');
     if (widget.currentPositionInSeconds != null && event.contains("currentPosition")) {
       final position = event.split(":").last.trim();
       widget.currentPositionInSeconds?.call(double.tryParse(position) ?? 0);

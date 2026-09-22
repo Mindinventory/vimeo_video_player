@@ -104,6 +104,56 @@ Widget build(BuildContext context) {
 | final ValueChanged<double>? currentPositionInSeconds                                                                          | Used to define a callback function that notifies current video position                             |
 | int? initialPositionInSeconds                                                                                                 | Used to define the initial video position in seconds                                                |
 
+## Utility Methods
+
+The `VimeoVideoPlayerUtils` class provides helper methods to extract the video ID and privacy
+hash from any common Vimeo URL, so you can pass a full URL instead of a bare video ID.
+
+Import it to your project file
+
+```dart
+import 'package:vimeo_video_player/vimeo_video_player.dart';
+```
+
+And use it like this:
+
+```dart
+final url = 'https://vimeo.com/1124216463/abcdef1234';
+
+final videoId = VimeoVideoPlayerUtils.extractVideoId(url); // "1124216463"
+final hash = VimeoVideoPlayerUtils.extractHash(url); // "abcdef1234"
+
+// Or get both at once:
+final result = VimeoVideoPlayerUtils.parse(url);
+
+VimeoVideoPlayer(
+  videoId: result.id ?? '',
+  privacyHash: result.hash,
+);
+```
+
+### Methods of VimeoVideoPlayerUtils
+------------
+
+| Method                                              | Return                     | Description                                                                          |
+|-----------------------------------------------------|----------------------------|--------------------------------------------------------------------------------------|
+| String? extractVideoId(String url)                  | String?                    | Extracts the numeric vimeo video ID from a Vimeo URL, returns null if none is found  |
+| String? extractHash(String url)                     | String?                    | Extracts the privacy hash (the `h` value) from an unlisted Vimeo URL, returns null if none is found |
+| ({String? id, String? hash}) parse(String url)      | ({String? id, String? hash}) | Returns both the video ID and the privacy hash in a single call                      |
+
+### Supported URL formats
+------------
+
+| URL                                                  | Extracted ID | Hash       |
+|------------------------------------------------------|--------------|------------|
+| https://vimeo.com/123456789                          | 123456789    | null       |
+| https://vimeo.com/123456789/abcdef1234               | 123456789    | abcdef1234 |
+| https://vimeo.com/123456789?h=abcdef1234             | 123456789    | abcdef1234 |
+| https://player.vimeo.com/video/123456789             | 123456789    | null       |
+| https://vimeo.com/channels/staffpicks/123456789      | 123456789    | null       |
+| https://vimeo.com/album/123456/video/789012          | 789012       | null       |
+| 123456789                                            | 123456789    | null       |
+
 ## Dependencies
 
 * [flutter_inappwebview](https://pub.dev/packages/flutter_inappwebview): ^6.1.5
