@@ -1,3 +1,11 @@
+## 1.0.4
+* Fixed the issues.
+    - [#69](https://github.com/Mindinventory/vimeo_video_player/issues/69)
+    - [#70](https://github.com/Mindinventory/vimeo_video_player/issues/70)
+    - [#71](https://github.com/Mindinventory/vimeo_video_player/issues/71)
+    - [#73](https://github.com/Mindinventory/vimeo_video_player/issues/73)
+* Updated the library details.
+
 ## 1.0.3
 * Fixed the issues.
     - PR merged: [#64](https://github.com/Mindinventory/vimeo_video_player/issues/64)
